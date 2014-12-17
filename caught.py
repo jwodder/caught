@@ -23,15 +23,15 @@ class CaughtDB(object):
 	"""Returns the ``Pokemon`` object for the Pokémon with the given name,
 	   or ``None`` if there is no such Pokémon"""
         cursor = self.db.cursor()
-	cursor.execute('SELECT idno FROM pokemon_names WHERE nickname=?', name)
+	cursor.execute('SELECT dexno FROM pokemon_names WHERE nickname=?', name)
 	try:
-	    idno, = cursor.fetchone()
+	    dexno, = cursor.fetchone()
 	except TypeError:
 	    return None
-	cursor.execute('SELECT name FROM pokemon WHERE idno=?', idno)
+	cursor.execute('SELECT name FROM pokemon WHERE dexno=?', dexno)
 	name, = cursor.fetchone()
-	altnames = list(cursor.execute('SELECT nickname FROM pokemon_names WHERE idno=? ORDER BY nickname ASC', idno))
-	return Pokemon(idno, name, altnames)
+	altnames = list(cursor.execute('SELECT nickname FROM pokemon_names WHERE dexno=? ORDER BY nickname ASC', dexno))
+	return Pokemon(dexno, name, altnames)
 
     def getGame(self, name):
 	"""Returns the ``Game`` object for the game with the given name, or
@@ -52,7 +52,7 @@ class CaughtDB(object):
 
 
 Game    = namedtuple('Game', 'gameID name dexsize altnames')
-Pokemon = namedtuple('Pokemon', 'pokeID name altnames')
+Pokemon = namedtuple('Pokemon', 'dexno name altnames')
 
 def usage():
     sys.stderr.write("Usage: %s game Pokémon ...\n" % (sys.argv[0],))
@@ -71,4 +71,4 @@ for poke in sys.argv[2:]:
     if pokedata is None:
 	sys.stderr.write('%s: %s: unknown Pokémon\n' % (sys.argv[0], poke))
 	sys.exit(2)
-    db.setStatus(game.gameID, pokedata.pokeID, CaughtDB.CAUGHT)
+    db.setStatus(game.gameID, pokedata.dexno, CaughtDB.CAUGHT)

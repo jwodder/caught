@@ -3,13 +3,13 @@
 CREATE TABLE pokemon (dexno INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT)
 -- Both columns are unique
 
-CREATE TABLE pokemon_names (dexno INTEGER, nickname TEXT)
--- nicknames are unique
+CREATE TABLE pokemon_names (dexno INTEGER, name TEXT)
+-- names are unique
 -- dexno is a foreign key to `pokemon`
 
-CREATE TABLE games (idno INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT, dexsize INTEGER)
+CREATE TABLE games (idno INTEGER PRIMARY KEY AUTOINCREMENT, version TEXT, player_name TEXT, dexsize INTEGER)
 -- `idno` and `name` columns are both unique
 
-CREATE TABLE game_names (idno INTEGER, nickname TEXT)
--- nicknames are unique
+CREATE TABLE game_names (idno INTEGER, name TEXT)
+-- names are unique
 -- idno is a foreign key to `games`

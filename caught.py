@@ -51,7 +51,7 @@ class CaughtDB(object):
     # method for getting a range/set of Pokémon for a given game?
 
 
-Game    = namedtuple('Game', 'gameID name dexsize altnames')
+Game    = namedtuple('Game', 'gameID version player_name dexsize altnames')
 Pokemon = namedtuple('Pokemon', 'dexno name altnames')
 
 def usage():

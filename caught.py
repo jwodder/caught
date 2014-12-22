@@ -23,7 +23,8 @@ class CaughtDB(object):
 	"""Returns the ``Pokemon`` object for the Pokémon with the given name,
 	   or ``None`` if there is no such Pokémon"""
 	cursor = self.db.cursor()
-	cursor.execute('SELECT dexno FROM pokemon_names WHERE name=?', name.lower())
+	cursor.execute('SELECT dexno FROM pokemon_names WHERE name=?',
+		       name.lower())
 	try:
 	    dexno, = cursor.fetchone()
 	except TypeError:
@@ -37,17 +38,27 @@ class CaughtDB(object):
 	"""Returns the ``Game`` object for the game with the given name, or
 	   ``None`` if there is no such game"""
 	cursor = self.db.cursor()
-	cursor.execute('SELECT idno FROM game_names WHERE name=?', name.lower())
+	cursor.execute('SELECT gameID FROM game_names WHERE name=?',
+		       name.lower())
 	try:
-	    idno, = cursor.fetchone()
+	    gameID, = cursor.fetchone()
 	except TypeError:
 	    return None
-	cursor.execute('SELECT version, player_name, dexsize FROM games WHERE idno=?', idno)
+	cursor.execute('SELECT version, player_name, dexsize FROM games WHERE gameID=?', gameID)
 	version, player_name, dexsize = cursor.fetchone()
-	altnames = list(cursor.execute('SELECT name FROM game_names WHERE idno=? ORDER BY name ASC', idno))
-	return Game(idno, version, player_name, dexsize, altnames)
+	altnames = list(cursor.execute('SELECT name FROM game_names WHERE gameID=? ORDER BY name ASC', gameID))
+	return Game(gameID, version, player_name, dexsize, altnames)
 
-    def getStatus(self, game, poke)
+    def getStatus(self, game, poke):
+	cursor = self.db.cursor()
+	cursor.execute('SELECT status FROM caught WHERE gameID=? AND dexno=?',
+		       int(game), int(poke))
+	try:
+	    status, = cursor.fetchone()
+	except TypeError:
+	    return self.UNCAUGHT
+	return status
+
     def setStatus(self, game, poke, status)  # returns a boolean for whether there was a change?
 
     def newGame(self, name, dexsize, altnames)
@@ -60,24 +71,34 @@ class CaughtDB(object):
     # method for getting a range/set of Pokémon for a given game?
 
 
-Game    = namedtuple('Game', 'gameID version player_name dexsize altnames')
-Pokemon = namedtuple('Pokemon', 'dexno name altnames')
+class Game(namedtuple('Game', 'gameID version player_name dexsize altnames')):
+    __slots__ = ()
+    def __int__(self): return self.gameID
+
+
+class Pokemon(namedtuple('Pokemon', 'dexno name altnames')):
+    __slots__ = ()
+    def __int__(self): return self.dexno
+
 
 def usage():
     sys.stderr.write("Usage: %s game Pokémon ...\n" % (sys.argv[0],))
     sys.exit(2)
 
-if len(sys.argv) < 3:
-    usage()
-
-db = CaughtDB(dbfile)
-game = db.getGame(sys.argv[1])
-if game is None:
-    sys.stderr.write('%s: %s: unknown game\n' % (sys.argv[0], sys.argv[1]))
-    sys.exit(2)
-for poke in sys.argv[2:]:
-    pokedata = db.getPokemon(poke)
-    if pokedata is None:
-	sys.stderr.write('%s: %s: unknown Pokémon\n' % (sys.argv[0], poke))
+def main():
+    if len(sys.argv) < 3:
+	usage()
+    db = CaughtDB(dbfile)
+    game = db.getGame(sys.argv[1])
+    if game is None:
+	sys.stderr.write('%s: %s: unknown game\n' % (sys.argv[0], sys.argv[1]))
 	sys.exit(2)
-    db.setStatus(game.gameID, pokedata.dexno, CaughtDB.CAUGHT)
+    for poke in sys.argv[2:]:
+	pokedata = db.getPokemon(poke)
+	if pokedata is None:
+	    sys.stderr.write('%s: %s: unknown Pokémon\n' % (sys.argv[0], poke))
+	    sys.exit(2)
+	db.setStatus(game, pokedata, CaughtDB.CAUGHT)
+
+if __name__ == '__main__':
+    main()

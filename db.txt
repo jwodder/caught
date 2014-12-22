@@ -1,5 +1,3 @@
--- s/nickname/altname/g ?
-
 CREATE TABLE pokemon (dexno INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT)
 -- Both columns are unique
 
@@ -7,9 +5,12 @@ CREATE TABLE pokemon_names (dexno INTEGER, name TEXT)
 -- names are unique and lowercase
 -- dexno is a foreign key to `pokemon`
 
-CREATE TABLE games (idno INTEGER PRIMARY KEY AUTOINCREMENT, version TEXT, player_name TEXT, dexsize INTEGER)
--- `idno` and `name` columns are both unique
+CREATE TABLE games (gameID INTEGER PRIMARY KEY AUTOINCREMENT, version TEXT, player_name TEXT, dexsize INTEGER)
+-- `gameID` and `name` columns are both unique
 
-CREATE TABLE game_names (idno INTEGER, name TEXT)
+CREATE TABLE game_names (gameID INTEGER, name TEXT)
 -- names are unique and lowercase
--- idno is a foreign key to `games`
+-- gameID is a foreign key to `games`
+
+CREATE TABLE caught (gameID INTEGER, dexno INTEGER, status INTEGER)
+-- (gameID, dexno) is the key.

@@ -22,21 +22,30 @@ class CaughtDB(object):
     def getPokemon(self, name):
 	"""Returns the ``Pokemon`` object for the Pokémon with the given name,
 	   or ``None`` if there is no such Pokémon"""
-        cursor = self.db.cursor()
-	cursor.execute('SELECT dexno FROM pokemon_names WHERE nickname=?', name)
+	cursor = self.db.cursor()
+	cursor.execute('SELECT dexno FROM pokemon_names WHERE name=?', name.lower())
 	try:
 	    dexno, = cursor.fetchone()
 	except TypeError:
 	    return None
 	cursor.execute('SELECT name FROM pokemon WHERE dexno=?', dexno)
 	name, = cursor.fetchone()
-	altnames = list(cursor.execute('SELECT nickname FROM pokemon_names WHERE dexno=? ORDER BY nickname ASC', dexno))
+	altnames = list(cursor.execute('SELECT name FROM pokemon_names WHERE dexno=? ORDER BY name ASC', dexno))
 	return Pokemon(dexno, name, altnames)
 
     def getGame(self, name):
 	"""Returns the ``Game`` object for the game with the given name, or
 	   ``None`` if there is no such game"""
-        ???
+	cursor = self.db.cursor()
+	cursor.execute('SELECT idno FROM game_names WHERE name=?', name.lower())
+	try:
+	    idno, = cursor.fetchone()
+	except TypeError:
+	    return None
+	cursor.execute('SELECT version, player_name, dexsize FROM games WHERE idno=?', idno)
+	version, player_name, dexsize = cursor.fetchone()
+	altnames = list(cursor.execute('SELECT name FROM game_names WHERE idno=? ORDER BY name ASC', idno))
+	return Game(idno, version, player_name, dexsize, altnames)
 
     def getStatus(self, game, poke)
     def setStatus(self, game, poke, status)  # returns a boolean for whether there was a change?

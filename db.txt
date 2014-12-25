@@ -6,7 +6,7 @@ CREATE TABLE pokemon_names (dexno INTEGER, name TEXT)
 -- dexno is a foreign key to `pokemon`
 
 CREATE TABLE games (gameID INTEGER PRIMARY KEY AUTOINCREMENT, version TEXT, player_name TEXT, dexsize INTEGER)
--- `gameID` and `name` columns are both unique
+-- `gameID` and `player_name` columns are both unique
 
 CREATE TABLE game_names (gameID INTEGER, name TEXT)
 -- names are unique and lowercase

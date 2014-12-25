@@ -31,8 +31,7 @@ class CaughtDB(object):
 	    return None
 	cursor.execute('SELECT name FROM pokemon WHERE dexno=?', dexno)
 	name, = cursor.fetchone()
-	altnames = list(cursor.execute('SELECT name FROM pokemon_names WHERE dexno=? ORDER BY name ASC', dexno))
-	return Pokemon(dexno, name, altnames)
+	return Pokemon(dexno, name, self.get_pokemon_names(dexno))
 
     def getGame(self, name):
 	"""Returns the ``Game`` object for the game with the given name, or
@@ -44,10 +43,11 @@ class CaughtDB(object):
 	    gameID, = cursor.fetchone()
 	except TypeError:
 	    return None
-	cursor.execute('SELECT version, player_name, dexsize FROM games WHERE gameID=?', gameID)
+	cursor.execute('SELECT version, player_name, dexsize FROM games'
+		       ' WHERE gameID=?', gameID)
 	version, player_name, dexsize = cursor.fetchone()
-	altnames = list(cursor.execute('SELECT name FROM game_names WHERE gameID=? ORDER BY name ASC', gameID))
-	return Game(gameID, version, player_name, dexsize, altnames)
+	return Game(gameID, version, player_name, dexsize,
+		    self.get_game_names(gameID))
 
     def getStatus(self, game, poke):
 	cursor = self.db.cursor()
@@ -64,8 +64,30 @@ class CaughtDB(object):
     def newGame(self, name, dexsize, altnames)
     def getGameCount(self, game)  # returns number of Pokémon caught & owned (and dexsize?)
 
-    def allGames(self)
-    def allPokémon(self, maxno=None)
+    def allGames(self):
+	for row in self.db.execute('SELECT gameID, version, player_name,'
+				   ' dexsize FROM games ORDER BY gameID ASC'):
+	    yield Game(*(row + (self.get_game_names(row[0]),)))
+
+    def allPokémon(self, maxno=None):
+        if maxno is None:
+	    results = self.db.execute('SELECT dexno, name FROM pokemon'
+				      ' ORDER BY dexno ASC')
+	else:
+	    results = self.db.execute('SELECT dexno, name FROM pokemon '
+				      'WHERE dexno <= ? ORDER BY dexno ASC',
+				      maxno)
+	for dexno, name in results:
+	    yield Pokemon(dexno, name, self.get_pokemon_names(dexno))
+
+    def get_pokemon_names(self, dexno):  # internal function
+	return list(self.db.execute('SELECT name FROM pokemon_names'
+				    ' WHERE dexno=? ORDER BY name ASC', dexno))
+
+    def get_game_names(self, gameID):  # internal function
+	return list(self.db.execute('SELECT name FROM game_names'
+				    ' WHERE gameID=? ORDER BY name ASC',
+				    gameID))
 
     # method for getting a list of all Pokémon for a given game
     # method for getting a range/set of Pokémon for a given game?

@@ -8,9 +8,6 @@ import sys
 dbfile = os.environ["HOME"] + 'share/caught.db'
 
 class CaughtDB(object):
-### TODO: Give this with_statement methods that call db.commit() on success and
-### db.rollback() on error
-
     UNCAUGHT = 0
     CAUGHT   = 1
     OWNED    = 2
@@ -18,6 +15,16 @@ class CaughtDB(object):
     def __init__(self, dbpath):
 	self.db = sqlite3.connect(dbpath)
 	self.db.text_factory = str
+
+    def __enter__(self): return self
+
+    def __exit__(self, exc_type, exc_value, traceback):
+	if exc_type is None:
+	    self.db.commit()
+	else:
+	    self.db.rollback()
+	self.db.close()
+	return False
 
     def getPokemon(self, name):
 	"""Returns the ``Pokemon`` object for the Pokémon with the given name,
@@ -118,17 +125,19 @@ def usage():
 def main():
     if len(sys.argv) < 3:
 	usage()
-    db = CaughtDB(dbfile)
-    game = db.getGame(sys.argv[1])
-    if game is None:
-	sys.stderr.write('%s: %s: unknown game\n' % (sys.argv[0], sys.argv[1]))
-	sys.exit(2)
-    for poke in sys.argv[2:]:
-	pokedata = db.getPokemon(poke)
-	if pokedata is None:
-	    sys.stderr.write('%s: %s: unknown Pokémon\n' % (sys.argv[0], poke))
+    with CaughtDB(dbfile) as db:
+	game = db.getGame(sys.argv[1])
+	if game is None:
+	    sys.stderr.write('%s: %s: unknown game\n'
+			     % (sys.argv[0], sys.argv[1]))
 	    sys.exit(2)
-	db.setStatus(game, pokedata, CaughtDB.CAUGHT)
+	for poke in sys.argv[2:]:
+	    pokedata = db.getPokemon(poke)
+	    if pokedata is None:
+		sys.stderr.write('%s: %s: unknown Pokémon\n'
+				 % (sys.argv[0], poke))
+		sys.exit(2)
+	    db.setStatus(game, pokedata, CaughtDB.CAUGHT)
 
 if __name__ == '__main__':
     main()

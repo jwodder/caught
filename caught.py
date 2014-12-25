@@ -59,7 +59,14 @@ class CaughtDB(object):
 	    return self.UNCAUGHT
 	return status
 
-    def setStatus(self, game, poke, status)  # returns a boolean for whether there was a change?
+    def setStatus(self, game, poke, status):
+	if status == self.UNCAUGHT:
+	    self.db.execute('DELETE FROM caught WHERE gameID=? AND dexno=?',
+			    int(game), int(poke))
+	else:
+	    self.db.execute('INSERT OR REPLACE INTO caught (gameID, dexno,'
+			    ' status) VALUES (?, ?, ?)', int(game), int(poke),
+			    status)
 
     def getGameCount(self, game):
 	caught, = self.db.execute('SELECT count(*) FROM caught WHERE gameID = ?'

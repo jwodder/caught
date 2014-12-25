@@ -100,11 +100,6 @@ class CaughtDB(object):
 				    ' WHERE gameID=? ORDER BY name ASC',
 				    gameID))
 
-    def newGame(self, version, player_name, dexsize, altnames)
-
-    # method for getting a list of all Pokémon for a given game
-    # method for getting a range/set of Pokémon for a given game?
-
 
 class Game(namedtuple('Game', 'gameID version player_name dexsize altnames')):
     __slots__ = ()

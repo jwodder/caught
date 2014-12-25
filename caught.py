@@ -61,8 +61,12 @@ class CaughtDB(object):
 
     def setStatus(self, game, poke, status)  # returns a boolean for whether there was a change?
 
-    def newGame(self, name, dexsize, altnames)
-    def getGameCount(self, game)  # returns number of Pokémon caught & owned (and dexsize?)
+    def getGameCount(self, game):
+	caught, = self.db.execute('SELECT count(*) FROM caught WHERE gameID = ?'
+				  ' AND status = ?', int(game), self.CAUGHT)
+	owned,  = self.db.execute('SELECT count(*) FROM caught WHERE gameID = ?'
+				  ' AND status = ?', int(game), self.OWNED)
+	return (caught, owned)
 
     def allGames(self):
 	for row in self.db.execute('SELECT gameID, version, player_name,'
@@ -88,6 +92,8 @@ class CaughtDB(object):
 	return list(self.db.execute('SELECT name FROM game_names'
 				    ' WHERE gameID=? ORDER BY name ASC',
 				    gameID))
+
+    def newGame(self, version, player_name, dexsize, altnames)
 
     # method for getting a list of all Pokémon for a given game
     # method for getting a range/set of Pokémon for a given game?

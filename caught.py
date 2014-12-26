@@ -5,7 +5,7 @@ import os
 import sqlite3
 import sys
 
-dbfile = os.environ["HOME"] + 'share/caught.db'
+dbfile = os.environ["HOME"] + '/share/caught.db'
 
 class CaughtDB(object):
     UNCAUGHT = 0
@@ -15,6 +15,8 @@ class CaughtDB(object):
     def __init__(self, dbpath):
 	self.db = sqlite3.connect(dbpath)
 	self.db.text_factory = str
+	self.db.execute('PRAGMA foreign_keys = ON')
+	self.db.execute('PRAGMA encoding = "UTF-8"')  # Is this necessary?
 
     def __enter__(self): return self
 
@@ -88,7 +90,7 @@ class CaughtDB(object):
 	    yield Game(*(row + (self.get_game_names(row[0]),)))
 
     def allPokémon(self, maxno=None):
-        if maxno is None:
+	if maxno is None:
 	    results = self.db.execute('SELECT dexno, name FROM pokemon'
 				      ' ORDER BY dexno ASC')
 	else:

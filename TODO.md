@@ -14,4 +14,8 @@
       change the status of Pokémon marked "owned" unless an `-f` option is
       given
     - Add an option for specifying the database file
+    - Add an option for making a new game
+    - Add options for displaying statuses
 - Write a separate program for creating a new database
+- Add functionality (accessed through caught.py or another program?) for
+  extending/updating the Pokédex

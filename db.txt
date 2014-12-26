@@ -1,16 +1,23 @@
-CREATE TABLE pokemon (dexno INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT)
--- Both columns are unique
+PRAGMA foreign_keys = ON;
+PRAGMA encoding = "UTF-8";
 
-CREATE TABLE pokemon_names (dexno INTEGER, name TEXT)
--- names are unique and lowercase
--- dexno is a foreign key to `pokemon`
+CREATE TABLE pokemon (dexno INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+		      name  TEXT    NOT NULL UNIQUE);
 
-CREATE TABLE games (gameID INTEGER PRIMARY KEY AUTOINCREMENT, version TEXT, player_name TEXT, dexsize INTEGER)
--- `gameID` and `player_name` columns are both unique
+CREATE TABLE pokemon_names (dexno INTEGER NOT NULL REFERENCES pokemon(dexno),
+			    name  TEXT    NOT NULL UNIQUE,
+			    CHECK (name = lower(name)));
 
-CREATE TABLE game_names (gameID INTEGER, name TEXT)
--- names are unique and lowercase
--- gameID is a foreign key to `games`
+CREATE TABLE games (gameID      INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+		    version     TEXT    NOT NULL,
+		    player_name TEXT    NOT NULL,
+		    dexsize     INTEGER NOT NULL);
 
-CREATE TABLE caught (gameID INTEGER, dexno INTEGER, status INTEGER)
--- (gameID, dexno) is the key.
+CREATE TABLE game_names (gameID INTEGER NOT NULL REFERENCES games(gameID),
+			 name   TEXT    NOT NULL UNIQUE,
+			 CHECK (name = lower(name)));
+
+CREATE TABLE caught (gameID INTEGER NOT NULL REFERENCES games(gameID),
+		     dexno  INTEGER NOT NULL REFERENCES pokemon(dexno),
+		     status INTEGER NOT NULL,
+		     PRIMARY KEY (gameID, dexno));

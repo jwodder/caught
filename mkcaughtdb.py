@@ -9,6 +9,7 @@ dbfile  = sys.argv[1]
 pokedex = sys.argv[2]
 
 with sqlite3.connect(dbfile) as db:
+    db.text_factory = str
     db.executescript('''
 PRAGMA foreign_keys = ON;
 PRAGMA encoding = "UTF-8";
@@ -46,9 +47,8 @@ CREATE TABLE caught (gameID INTEGER NOT NULL REFERENCES games(gameID),
 	    except ValueError:
 		raise SystemExit('%s: %s: line %d: %s: not a number'
 				 % (sys.argv[0], pokedex, lineno, fields[0]))
-
 	    db.execute('INSERT OR ROLLBACK INTO pokemon (dexno, name)'
-		       ' VALUES (?, ?)', dexno, fields[1])
+		       ' VALUES (?, ?)', (dexno, fields[1]))
 	    for name in fields[1:]:
 		db.execute('INSERT OR ROLLBACK INTO pokemon_names (dexno, name)'
-			   ' VALUES (?, ?)', dexno, name.lower())
+			   ' VALUES (?, ?)', (dexno, name.lower()))

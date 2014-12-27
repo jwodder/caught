@@ -18,3 +18,5 @@
     - Add options for displaying statuses
 - Add functionality (accessed through caught.py or another program?) for
   extending/updating the Pokédex
+- `mkcaughtdb.py`: Try to make the program rollback the CREATE TABLE statements
+  (not just the INSERT statements) when an INSERT fails

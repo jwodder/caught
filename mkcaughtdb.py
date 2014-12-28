@@ -3,7 +3,7 @@ import sqlite3
 import sys
 
 if len(sys.argv) != 3:
-    raise SystemExit('Usage: %s dbfile pokedex\n' % (sys.argv[0],))
+    raise SystemExit('Usage: %s dbfile pokedex' % (sys.argv[0],))
 
 dbfile  = sys.argv[1]
 pokedex = sys.argv[2]
@@ -52,3 +52,4 @@ CREATE TABLE caught (gameID INTEGER NOT NULL REFERENCES games(gameID),
 	    for name in fields[1:]:
 		db.execute('INSERT OR ROLLBACK INTO pokemon_names (dexno, name)'
 			   ' VALUES (?, ?)', (dexno, name.lower()))
+    db.commit()

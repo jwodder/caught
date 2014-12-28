@@ -121,7 +121,7 @@ class Pokemon(namedtuple('Pokemon', 'dexno name altnames')):
     def __int__(self): return self.dexno
 
 
-def usage(): raise SystemExit("Usage: %s game Pokémon ...\n" % (sys.argv[0],))
+def usage(): raise SystemExit("Usage: %s game Pokémon ..." % (sys.argv[0],))
 
 def main():
     if len(sys.argv) < 3:
@@ -129,15 +129,13 @@ def main():
     with CaughtDB(dbfile) as db:
 	game = db.getGame(sys.argv[1])
 	if game is None:
-	    sys.stderr.write('%s: %s: unknown game\n'
+	    raise SystemExit('%s: %s: unknown game'
 			     % (sys.argv[0], sys.argv[1]))
-	    sys.exit(2)
 	for poke in sys.argv[2:]:
 	    pokedata = db.getPokemon(poke)
 	    if pokedata is None:
-		sys.stderr.write('%s: %s: unknown Pokémon\n'
+		raise SystemExit('%s: %s: unknown Pokémon'
 				 % (sys.argv[0], poke))
-		sys.exit(2)
 	    db.setStatus(game, pokedata, CaughtDB.CAUGHT)
 
 if __name__ == '__main__':

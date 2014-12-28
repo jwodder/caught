@@ -43,3 +43,23 @@
 - Add support for keeping track of Unown forms
 - pokemon_names should include the dexno as an altname
 - Add support for regional Pokédexes
+- Add commands & methods for adding to & removing from a game's altnames
+
+- Possible way to handle game names:
+    - Creating a game entry with version `version` and player name `player`
+      creates a `game_names` entry `version:player`; if such an entry already
+      exists, the new `game_names` entry is instead named `version:player:N`,
+      where `N` is the number of `game_names` entries of the form
+      `/^version:player(:.*)?$/` already present.  Neither `version` nor
+      `player` is added to `game_names` unless it explicitly appears in the
+      "altnames" list for the game creation command.
+        - A `game_names` entry is also created for the new gameID as a string.
+          If such an entry already exists, a warning is printed to stderr.
+          (Should these strings have a prefix in order to avoid problems when a
+          user tries to `caught add` a dexno and forgets the gameID?)
+    - Upon successful completion, `caught new` prints out the new game's
+      `gameID` and all `game_names` entries.
+    - When looking up a game by name, if there exists a `game_names` entry for
+      that name, it is used.  Otherwise, all games whose `version` and/or
+      `player_name` equals the supplied string are queried; if there is exactly
+      one, it is used, otherwise it is an error.

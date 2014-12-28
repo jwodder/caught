@@ -100,6 +100,41 @@ class CaughtDB(object):
 	for dexno, name in results:
 	    yield Pokemon(dexno, name, self.get_pokemon_names(dexno))
 
+    def newGame(self, version, player_name, dexsize, altnames):
+	cursor = self.db.cursor()
+	cursor.execute('INSERT INTO games (version, player_name, dexsize)'
+		       ' VALUES (?,?,?)', (version, player_name, int(dexsize)))
+	gameID = cursor.lastrowid
+	altnames = tuple(alt.lower() for alt in altnames)
+	cursor.executemany('INSERT INTO game_names (gameID, name) VALUES (?,?)',
+			   ((gameID, alt) for alt in altnames))
+	specialName = None
+	colonbase = version.lower() + ':' + player_name.lower()
+	if not any(alt == colonbase or alt.startswith(colonbase + ':')
+		   for alt in altnames):
+	    try:
+		cursor.execute('INSERT INTO game_names (gameID, name) VALUES'
+			       ' (?,?)', (gameID, colonbase))
+	    except Exception:
+		escapebase = colonbase.replace('\\', r'\\') \
+				      .replace('%', r'\%') \
+				      .replace('_', r'\_')
+		n = 1
+		for name in cursor.execute('SELECT name FROM game_names'
+					   ' WHERE name LIKE ? ESCAPE ?',
+					   (escapebase + ':%', '\\')):
+		    name = name[len(colonbase)+1:]
+		    try:
+			m = int(name)
+		    except ValueError:
+			pass
+		    else:
+			n = max(n,m)
+		colonbase += ':' + str(n+1)
+		cursor.execute('INSERT INTO game_names (gameID, name) VALUES'
+			       ' (?,?)', (gameID, colonbase))
+	return (gameID, colonbase)
+
     def get_pokemon_names(self, dexno):  # internal function
 	return list(self.db.execute('SELECT name FROM pokemon_names'
 				    ' WHERE dexno=? ORDER BY name ASC',

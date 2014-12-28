@@ -1,13 +1,10 @@
 - `CaughtDB`:
-    - Add a `newGame` method:
-
-        def newGame(self, version, player_name, dexsize, altnames)
-
     - Add a method for getting a list of all Pokémon and their statuses for a
       given game
     - Add a method for getting a range of Pokémon & statuses for a given game?
     - Should `setStatus` check its `status` argument for validity?
     - Move to a module? (along with `Game` and `Pokemon`)
+    - Add `commit` and `rollback` methods
 - `caught.py`:
     - Add command-line options for setting statuses to "owned" and "uncaught"
     - In its default mode of marking Pokémon "caught", caught.py should not
@@ -34,6 +31,9 @@
 
         caught [-D dbfile] update tsvfile  # add more Pokémon
 
+    - All commands that take a "game" argument can alternatively have the game
+      specified by a `-g gameID` option (or just take a bare `-g` option that
+      forces the "game" argument to be interpreted as a `gameID`?)
 - Add functionality (accessed through caught.py or another program?) for
   extending/updating the Pokédex
 - `mkcaughtdb.py`: Try to make the program rollback the CREATE TABLE statements
@@ -43,7 +43,9 @@
 - Add support for keeping track of Unown forms
 - pokemon_names should include the dexno as an altname
 - Add support for regional Pokédexes
-- Add commands & methods for adding to & removing from a game's altnames
+- Add commands & methods for adding & removing game altnames
+- The "new game" command and method should both have options/arguments for
+  ignoring altnames that are already in use
 
 - Possible way to handle game names:
     - Creating a game entry with version `version` and player name `player`
@@ -53,10 +55,10 @@
       `/^version:player(:.*)?$/` already present.  Neither `version` nor
       `player` is added to `game_names` unless it explicitly appears in the
       "altnames" list for the game creation command.
-        - A `game_names` entry is also created for the new gameID as a string.
-          If such an entry already exists, a warning is printed to stderr.
-          (Should these strings have a prefix in order to avoid problems when a
-          user tries to `caught add` a dexno and forgets the gameID?)
+        - Should the first game to have a `version:player` name also have
+          `version:player:1`?  If so, should `version:player` be automatically
+          reassigned to the newest game with those parameters whenever such a
+          game is created?
     - Upon successful completion, `caught new` prints out the new game's
       `gameID` and all `game_names` entries.
     - When looking up a game by name, if there exists a `game_names` entry for

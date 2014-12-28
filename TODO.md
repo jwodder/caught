@@ -41,7 +41,6 @@
 - Should CaughtDB and/or caught.py raise an error when trying to set the status
   for a Pokémon that is beyond a game's dexsize?
 - Add support for keeping track of Unown forms
-- pokemon_names should include the dexno as an altname
 - Add support for regional Pokédexes
 - Add commands & methods for adding & removing game altnames
 - The "new game" command and method should both have options/arguments for

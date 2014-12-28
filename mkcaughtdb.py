@@ -48,8 +48,8 @@ CREATE TABLE caught (gameID INTEGER NOT NULL REFERENCES games(gameID),
 		raise SystemExit('%s: %s: line %d: %s: not a number'
 				 % (sys.argv[0], pokedex, lineno, fields[0]))
 	    db.execute('INSERT OR ROLLBACK INTO pokemon (dexno, name)'
-		       ' VALUES (?, ?)', (dexno, fields[1]))
-	    for name in fields[1:]:
-		db.execute('INSERT OR ROLLBACK INTO pokemon_names (dexno, name)'
-			   ' VALUES (?, ?)', (dexno, name.lower()))
+		       ' VALUES (?,?)', (dexno, fields[1]))
+	    db.executemany('INSERT OR ROLLBACK INTO pokemon_names (dexno, name)'
+			   ' VALUES (?,?)', ((dexno, name.lower())
+					     for name in fields))
     db.commit()

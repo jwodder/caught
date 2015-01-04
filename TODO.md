@@ -5,6 +5,18 @@
     - Should `setStatus` check its `status` argument for validity?
     - Move to a module? (along with `Game` and `Pokemon`)
     - Add `commit` and `rollback` methods
+    - Add `getPokemonByDexno` and `getGameById` methods
+    - Add variants of `setStatus` that perform the following specific
+      transitions:
+
+        - uncaught → caught
+        - uncaught or caught → owned
+        - owned → caught
+
+      If the specified `(game, poke)` pair is not in the appropriate initial
+      state, the method does nothing and returns `False`; otherwise, the status
+      is updated and `True` is returned.
+
 - `caught.py`:
     - Add command-line options for setting statuses to "owned" and "uncaught"
     - In its default mode of marking Pokémon "caught", caught.py should not
@@ -31,9 +43,13 @@
 
         caught [-D dbfile] update tsvfile  # add more Pokémon
 
+        caught [-D dbfile] export [game ...]  # Exports all games by default
+        caught [-D dbfile] import [file]
+
     - All commands that take a "game" argument can alternatively have the game
       specified by a `-g gameID` option (or just take a bare `-g` option that
       forces the "game" argument to be interpreted as a `gameID`?)
+    - Add functionality for automatically backing up the database?
 - Add functionality (accessed through caught.py or another program?) for
   extending/updating the Pokédex
 - `mkcaughtdb.py`: Try to make the program rollback the CREATE TABLE statements

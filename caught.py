@@ -85,9 +85,10 @@ class CaughtDB(object):
 	return (caught, owned)
 
     def allGames(self):
-	for row in self.db.execute('SELECT gameID, version, player_name,'
-				   ' dexsize FROM games ORDER BY gameID ASC'):
-	    yield Game(*(row + (self.get_game_names(row[0]),)))
+	return [Game(*(row + (self.get_game_names(row[0]),)))
+		for row in self.db.execute('SELECT gameID, version,'
+					   ' player_name, dexsize FROM games'
+					   ' ORDER BY gameID ASC')]
 
     def allPokémon(self, maxno=None):
 	if maxno is None:
@@ -97,8 +98,8 @@ class CaughtDB(object):
 	    results = self.db.execute('SELECT dexno, name FROM pokemon '
 				      'WHERE dexno <= ? ORDER BY dexno ASC',
 				      (maxno,))
-	for dexno, name in results:
-	    yield Pokemon(dexno, name, self.get_pokemon_names(dexno))
+	return [Pokemon(dexno, name, self.get_pokemon_names(dexno))
+		for dexno, name in results]
 
     def newGame(self, version, player_name, dexsize, altnames):
 	cursor = self.db.cursor()

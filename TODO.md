@@ -50,6 +50,7 @@
       specified by a `-g gameID` option (or just take a bare `-g` option that
       forces the "game" argument to be interpreted as a `gameID`?)
     - Add functionality for automatically backing up the database?
+    - Add commands for listing all Pokémon in a game with a given status
 - Add functionality (accessed through caught.py or another program?) for
   extending/updating the Pokédex
 - `mkcaughtdb.py`: Try to make the program rollback the CREATE TABLE statements

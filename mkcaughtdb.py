@@ -38,7 +38,10 @@ CREATE TABLE caught (gameID INTEGER NOT NULL REFERENCES games(gameID),
 
     with open(pokedex) as dex:
 	for (lineno, line) in enumerate(dex, start=1):
-	    fields = line.strip().split('\t')
+	    line = line.strip()
+	    if line == '' or line[0] == '#':
+		continue
+	    fields = line.split('\t')
 	    if len(fields) < 2:
 		raise SystemExit('%s: %s: line %d: too few fields'
 				 % (sys.argv[0], pokedex, lineno))

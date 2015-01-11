@@ -165,8 +165,7 @@ def main():
     with CaughtDB(dbfile) as db:
         game = db.getGame(sys.argv[1])
         if game is None:
-            raise SystemExit('%s: %s: unknown game'
-                             % (sys.argv[0], sys.argv[1]))
+            raise SystemExit('%s: %s: unknown game' % tuple(sys.argv[:2]))
         for poke in sys.argv[2:]:
             pokedata = db.getPokemon(poke)
             if pokedata is None:

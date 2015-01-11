@@ -29,28 +29,30 @@
 
         caught [-D dbfile] new version playername dexsize [altnames ...]
 
-        caught [-D dbfile] add [-f] game pokemon ...
-        caught [-D dbfile] own [-f] game pokemon ...
-
-        # to undo an 'add'/'own', i.e., to mark as uncaught/caught
-        caught [-D dbfile] add -u [-f] game pokemon ...
-        caught [-D dbfile] own -u [-f] game pokemon ...
+        caught [-D dbfile] add game pokemon ...       # uncaught → caught
+        caught [-D dbfile] own game pokemon ...       # * → owned
+        caught [-D dbfile] release game pokemon ...   # owned → caught
+        caught [-D dbfile] uncaught game pokemon ...  # * → uncaught
 
         caught [-D dbfile] games
-        caught [-D dbfile] list game  # List all Pokémon up through `dexsize`
-        caught [-D dbfile] list game pokemon|dexno|dexno_range ...
-        caught [-D dbfile] listall  # List all Pokémon in all games in a table
+
+	caught [-D dbfile] list status game [pokemon|dexno|dexno_range ...]
+
+        caught [-D dbfile] table game[,game...]  # List all Pokémon up through maximum `dexsize`
+        caught [-D dbfile] table game[,game...] pokemon|dexno|dexno_range ...
+        caught [-D dbfile] table -A  # List all Pokémon in all games in a table
+        caught [-D dbfile] table -A pokemon|dexno|dexno_range ...
 
         caught [-D dbfile] update tsvfile  # add more Pokémon
 
-        caught [-D dbfile] export [game ...]  # Exports all games by default
-        caught [-D dbfile] import [file]
+        caught [-D dbfile] export [-o file] [game ...]  # Exports all games by default
+        caught [-D dbfile] import [file | -]
 
     - All commands that take a "game" argument can alternatively have the game
       specified by a `-g gameID` option (or just take a bare `-g` option that
       forces the "game" argument to be interpreted as a `gameID`?)
+     - Alternatively, just prohibit game altnames that are all-digits
     - Add functionality for automatically backing up the database?
-    - Add commands for listing all Pokémon in a game with a given status
 - Add functionality (accessed through caught.py or another program?) for
   extending/updating the Pokédex
 - `mkcaughtdb.py`: Try to make the program rollback the CREATE TABLE statements

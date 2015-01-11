@@ -3,7 +3,6 @@
       given game
     - Add a method for getting a range of Pokémon & statuses for a given game?
     - Should `setStatus` check its `status` argument for validity?
-    - Move to a module? (along with `Game` and `Pokemon`)
     - Add `commit` and `rollback` methods
     - Add `getPokemonByDexno` and `getGameById` methods
     - Add variants of `setStatus` that perform the following specific

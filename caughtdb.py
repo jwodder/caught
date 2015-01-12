@@ -72,6 +72,25 @@ class CaughtDB(object):
                             ' status) VALUES (?, ?, ?)', (int(game), int(poke),
                             status))
 
+    def markCaught(self, game, poke):  # uncaught → caught
+        if self.getStatus(game, poke) == self.UNCAUGHT:
+            self.db.execute('INSERT OR REPLACE INTO caught (gameID, dexno,'
+                            ' status) VALUES (?, ?, ?)', (int(game), int(poke),
+                            self.CAUGHT))
+
+    def markOwned(self, game, poke):  # * → owned
+        self.db.execute('INSERT OR REPLACE INTO caught (gameID, dexno, status)'
+                        ' VALUES (?, ?, ?)', (int(game), int(poke), self.OWNED))
+
+    def markReleased(self, game, poke):  # owned → caught
+        self.db.execute('UPDATE caught SET status=? WHERE gameID=? AND dexno=?'
+                        ' AND status=?', (self.CAUGHT, int(game), int(poke),
+                        self.OWNED))
+
+    def markUncaught(self, game, poke):  # * → uncaught
+        self.db.execute('DELETE FROM caught WHERE gameID=? AND dexno=?',
+                        (int(game), int(poke)))
+
     def getGameCount(self, game):
         caught, = self.db.execute('SELECT count(*) FROM caught WHERE gameID = ?'
                                   ' AND status = ?', (int(game), self.CAUGHT))

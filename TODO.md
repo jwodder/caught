@@ -1,3 +1,4 @@
+- Document everything!
 - `CaughtDB`:
     - Add a method for getting a list of all Pokémon and their statuses for a
       given game
@@ -5,35 +6,28 @@
     - Should `setStatus` check its `status` argument for validity?
     - Add `commit` and `rollback` methods
     - Add `getPokemonByDexno` and `getGameById` methods
-    - Add variants of `setStatus` that perform the following specific
-      transitions:
-
-        - uncaught → caught
-        - uncaught or caught → owned
-        - owned → caught
-
-      If the specified `(game, poke)` pair is not in the appropriate initial
-      state, the method does nothing and returns `False`; otherwise, the status
-      is updated and `True` is returned.
+    - `newGame` should return a complete `Game` object
+    - `newGame` should take an argument to control whether a
+      `version:playername[:N]` altname is created
+    - `newGame` should take an argument to control whether duplicate altnames
+      should be ignored instead of causing an error
+    - Add a `getGameByName` method that (unlike `getGame`) only searches the
+      `game_names` table (and add an option to `caught.py` for making use of
+      it)
 
 - `caught.py`:
-    - Add command-line options for setting statuses to "owned" and "uncaught"
-    - In its default mode of marking Pokémon "caught", caught.py should not
-      change the status of Pokémon marked "owned" unless an `-f` option is
-      given
-    - Add an option for specifying the database file
-    - Add an option for making a new game
-    - Add options for displaying statuses
-    - Possible command-line usages:
+    - Intended command-line usages to implement:
 
         caught [-D dbfile] new version playername dexsize [altnames ...]
+        # Add option to turn off creation of `version:playername[:N]` altname
+        # Add option to ignore altnames that already exist
 
         caught [-D dbfile] add game pokemon ...       # uncaught → caught
         caught [-D dbfile] own game pokemon ...       # * → owned
         caught [-D dbfile] release game pokemon ...   # owned → caught
         caught [-D dbfile] uncaught game pokemon ...  # * → uncaught
 
-        caught [-D dbfile] games
+        caught [-D dbfile] games [-q]  # `-q` causes dex progress to be printed
 
 	caught [-D dbfile] list status game [pokemon|dexno|dexno_range ...]
 
@@ -47,11 +41,13 @@
         caught [-D dbfile] export [-o file] [game ...]  # Exports all games by default
         caught [-D dbfile] import [file | -]
 
-    - All commands that take a "game" argument can alternatively have the game
-      specified by a `-g gameID` option (or just take a bare `-g` option that
-      forces the "game" argument to be interpreted as a `gameID`?)
-     - Alternatively, just prohibit game altnames that are all-digits
+    - By default, "game" arguments that are all digits are interpreted as game
+      IDs, unless the program-wide option `-G` is supplied, which forces them
+      to be interpreted as regular names.
     - Add functionality for automatically backing up the database?
+        - Idea: Add a program-wide option for backing up the database before
+          performing any operations, and add a command for restoring from a
+          backup
 - Add functionality (accessed through caught.py or another program?) for
   extending/updating the Pokédex
 - `mkcaughtdb.py`: Try to make the program rollback the CREATE TABLE statements
@@ -60,9 +56,9 @@
   for a Pokémon that is beyond a game's dexsize?
 - Add support for keeping track of Unown forms
 - Add support for regional Pokédexes
-- Add commands & methods for adding & removing game altnames
-- The "new game" command and method should both have options/arguments for
-  ignoring altnames that are already in use
+- Add commands & methods for adding & removing game altnames?
+- Make most of `mkcaughtdb.py` into a method of `CaughtDB`
+- Add commands & methods for deleting games
 
 - Possible way to handle game names:
     - Creating a game entry with version `version` and player name `player`

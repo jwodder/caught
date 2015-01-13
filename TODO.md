@@ -21,6 +21,7 @@
         caught [-D dbfile] new version playername dexsize [altnames ...]
         # Add option to turn off creation of `version:playername[:N]` altname
         # Add option to ignore altnames that already exist
+        # Add an option for setting the game ID?
 
         caught [-D dbfile] add game pokemon ...       # uncaught → caught
         caught [-D dbfile] own game pokemon ...       # * → owned

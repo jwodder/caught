@@ -24,29 +24,29 @@ class CaughtDB(object):
         return False
 
     def getPokemon(self, name):
-        """Returns the ``Pokemon`` object for the Pokémon with the given name,
-           or ``None`` if there is no such Pokémon"""
+        """Returns the ``Pokemon`` object for the Pokémon with the given name.
+           Raises a `NoSuchPokemonError`` if there is no such Pokémon."""
         cursor = self.db.cursor()
         cursor.execute('SELECT dexno FROM pokemon_names WHERE name=?',
                        (name.lower(),))
         try:
             dexno, = cursor.fetchone()
         except TypeError:
-            return None
+            raise NoSuchPokemonError(name)
         cursor.execute('SELECT name FROM pokemon WHERE dexno=?', (dexno,))
         name, = cursor.fetchone()
         return Pokemon(dexno, name, self.get_pokemon_names(dexno))
 
     def getGame(self, name):
-        """Returns the ``Game`` object for the game with the given name, or
-           ``None`` if there is no such game"""
+        """Returns the ``Game`` object for the game with the given name.
+           Raises a ``NoSuchGameError`` if there is no such game."""
         cursor = self.db.cursor()
         cursor.execute('SELECT gameID FROM game_names WHERE name=?',
                        (name.lower(),))
         try:
             gameID, = cursor.fetchone()
         except TypeError:
-            return None
+            raise NoSuchGameError(name)
         cursor.execute('SELECT version, player_name, dexsize FROM games'
                        ' WHERE gameID=?', (gameID,))
         version, player_name, dexsize = cursor.fetchone()
@@ -169,3 +169,32 @@ class Game(namedtuple('Game', 'gameID version player_name dexsize altnames')):
 class Pokemon(namedtuple('Pokemon', 'dexno name altnames')):
     __slots__ = ()
     def __int__(self): return self.dexno
+
+
+class CaughtDBError(Exception): pass
+
+
+class NoSuchGameError(CaughtDBError, LookupError):
+    def __init__(self, name=None, gameID=None):
+        self.name   = name
+        self.gameID = gameID
+        super(NoSuchGameError, self).__init__(name, gameID)
+
+    def __str__(self):
+        if self.gameID is None:
+            return 'No such game name: %r' % (self.name,)
+        else:
+            return 'No such gameID: %d' % (self.gameID,)
+
+
+class NoSuchPokemonError(CaughtDBError, LookupError)
+    def __init__(self, name=None, dexno=None):
+        self.name  = name
+        self.dexno = dexno
+        super(NoSuchPokemonError, self).__init__(name, dexno)
+
+    def __str__(self):
+        if self.dexno is None:
+            return 'No such Pokémon name: %r' % (self.name,)
+        else:
+            return 'No such dexno: %d' % (self.dexno,)

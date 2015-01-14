@@ -1,26 +1,38 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
+import argparse
 import os
 import sys
 from   caughtdb import CaughtDB, Game, Pokemon
 
-dbfile = os.environ["HOME"] + '/share/caught.db'
+default_dbfile = os.environ["HOME"] + '/.caughtdb'
 
-def usage(): raise SystemExit("Usage: %s game Pokémon ..." % (sys.argv[0],))
+def getGame(db, args, game):
+    if game.isdigit() and not args.force_gname:
+        return db.getGameById(int(game))
+    else:
+        return db.getGame(game)
 
 def main():
-    if len(sys.argv) < 3:
-        usage()
-    with CaughtDB(dbfile) as db:
-        game = db.getGame(sys.argv[1])
-        if game is None:
-            raise SystemExit('%s: %s: unknown game' % tuple(sys.argv[:2]))
-        for poke in sys.argv[2:]:
-            pokedata = db.getPokemon(poke)
-            if pokedata is None:
-                raise SystemExit('%s: %s: unknown Pokémon'
-                                 % (sys.argv[0], poke))
-            db.setStatus(game, pokedata, CaughtDB.CAUGHT)
+    parser = argparse.ArgumentParser
+    parser.add_argument('-D', '--dbfile', default=default_dbfile)
+    parser.add_argument('-G', dest='force_gname', action='store_true')
+    subparser = parser.add_subparsers('command', dest='cmd')
+    for name in ('add', 'own', 'release', 'uncatch'):
+        sp = subparser.add_parser(name)
+        sp.add_argument('game')
+        sp.add_argument('pokemon', nargs='+')
+    args = parser.parse_args()
+    try:
+        with CaughtDB(args.dbfile) as db:
+            if args.cmd == 'add':
+                game = getGame(db, args, args.game)
+                for poke in args.pokemon:
+                    pokedata = db.getPokemon(poke)
+                    db.markCaught(game, pokedata)
+    except Exception as e:
+        #raise SystemExit(sys.argv[0] + ': ' + sys.exc_info()[1])
+        raise SystemExit(sys.argv[0] + ': ' + str(e))
 
 if __name__ == '__main__':
     main()

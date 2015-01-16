@@ -42,5 +42,5 @@ try:
             for poke in args.pokemon:
                 pokedata = db.getPokemon(poke)
                 db.markCaught(game, pokedata)
-except Exception as e:
+except CaughtDBError as e:
     raise SystemExit(sys.argv[0] + ': ' + str(e))

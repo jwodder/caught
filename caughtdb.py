@@ -7,6 +7,29 @@ class CaughtDB(object):
     CAUGHT   = 1
     OWNED    = 2
 
+    SCHEMA = '''
+CREATE TABLE pokemon (dexno INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+                      name  TEXT    NOT NULL UNIQUE);
+
+CREATE TABLE pokemon_names (dexno INTEGER NOT NULL REFERENCES pokemon(dexno),
+                            name  TEXT    NOT NULL UNIQUE,
+                            CHECK (name = lower(name)));
+
+CREATE TABLE games (gameID      INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+                    version     TEXT    NOT NULL,
+                    player_name TEXT    NOT NULL,
+                    dexsize     INTEGER NOT NULL);
+
+CREATE TABLE game_names (gameID INTEGER NOT NULL REFERENCES games(gameID),
+                         name   TEXT    NOT NULL UNIQUE,
+                         CHECK (name = lower(name)));
+
+CREATE TABLE caught (gameID INTEGER NOT NULL REFERENCES games(gameID),
+                     dexno  INTEGER NOT NULL REFERENCES pokemon(dexno),
+                     status INTEGER NOT NULL,
+                     PRIMARY KEY (gameID, dexno));
+'''
+
     def __init__(self, dbpath):
         self.db = sqlite3.connect(dbpath)
         self.db.text_factory = str
@@ -22,6 +45,28 @@ class CaughtDB(object):
             self.db.rollback()
         self.db.close()
         return False
+
+    def create(self, pokedex):
+        self.db.executescript(SCHEMA)
+        with open(pokedex) as dex:
+            for (lineno, line) in enumerate(dex, start=1):
+                line = line.strip()
+                if line == '' or line[0] == '#':
+                    continue
+                fields = line.split('\t')
+                if len(fields) < 2:
+                    raise MalformedFileError(pokedex, lineno, 'too few fields')
+                try:
+                    dexno = int(fields[0])
+                except ValueError:
+                    raise MalformedFileError(pokedex, lineno,
+                                             fields[0] + ': not a number')
+                self.db.execute('INSERT OR ROLLBACK INTO pokemon (dexno, name)'
+                                ' VALUES (?,?)', (dexno, fields[1]))
+                self.db.executemany('INSERT OR ROLLBACK INTO pokemon_names'
+                                    ' (dexno, name) VALUES (?,?)',
+                                    ((dexno, name.lower()) for name in fields))
+        self.db.commit()
 
     def getPokemon(self, name):
         """Returns the ``Pokemon`` object for the Pokémon with the given name.
@@ -187,7 +232,7 @@ class NoSuchGameError(CaughtDBError, LookupError):
             return 'No such gameID: %d' % (self.gameID,)
 
 
-class NoSuchPokemonError(CaughtDBError, LookupError)
+class NoSuchPokemonError(CaughtDBError, LookupError):
     def __init__(self, name=None, dexno=None):
         self.name  = name
         self.dexno = dexno
@@ -198,3 +243,14 @@ class NoSuchPokemonError(CaughtDBError, LookupError)
             return 'No such Pokémon name: %r' % (self.name,)
         else:
             return 'No such dexno: %d' % (self.dexno,)
+
+
+class MalformedFileError(CaughtDBError, ValueError):
+    def __init__(self, filename, lineno, reason):
+        self.filename = filename
+        self.lineno = lineno
+        self.reason = reason
+        super(MalformedFileError, self).__init__(filename, lineno, reason)
+
+    def __str__(self):
+        return '%s: line %d: %s' % (self.filename, self.lineno, self.reason)

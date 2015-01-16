@@ -14,6 +14,9 @@
     - Add a `getGameByName` method that (unlike `getGame`) only searches the
       `game_names` table (and add an option to `caught.py` for making use of
       it)
+    - Should `create` ensure the dexnos are all positive & contiguous?
+    - Try to make `create` rollback the CREATE TABLE statements (not just the
+      INSERT statements) when an INSERT fails
 
 - `caught.py`:
     - Intended command-line usages to implement:
@@ -54,15 +57,13 @@
     - Once `newGame` returns a complete `Game` object, print it out
 - Add functionality (accessed through caught.py or another program?) for
   extending/updating the Pokédex
-- `mkcaughtdb.py`: Try to make the program rollback the CREATE TABLE statements
-  (not just the INSERT statements) when an INSERT fails
 - Should CaughtDB and/or caught.py raise an error when trying to set the status
   for a Pokémon that is beyond a game's dexsize?
 - Add support for keeping track of Unown forms
 - Add support for regional Pokédexes
 - Add commands & methods for adding & removing game altnames?
-- Make most of `mkcaughtdb.py` into a method of `CaughtDB`
 - Add commands & methods for deleting games
+- Merge `mkcaughtdb.py` into `caught.py`?
 
 - Possible way to handle game names:
     - Creating a game entry with version `version` and player name `player`

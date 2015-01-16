@@ -49,6 +49,9 @@
         - Idea: Add a program-wide option for backing up the database before
           performing any operations, and add a command for restoring from a
           backup
+    - Fill in 'help', 'metavar', and other help message-related values for
+      argparse
+    - Once `newGame` returns a complete `Game` object, print it out
 - Add functionality (accessed through caught.py or another program?) for
   extending/updating the Pokédex
 - `mkcaughtdb.py`: Try to make the program rollback the CREATE TABLE statements

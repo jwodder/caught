@@ -35,6 +35,7 @@
 
 	caught [-D dbfile] list status game [pokemon|dexno|dexno_range ...]
 
+        # Rename `table` to `get`?
         caught [-D dbfile] table game[,game...]  # List all Pokémon up through maximum `dexsize`
         caught [-D dbfile] table game[,game...] pokemon|dexno|dexno_range ...
         caught [-D dbfile] table -A  # List all Pokémon in all games in a table
@@ -42,7 +43,7 @@
 
         caught [-D dbfile] update tsvfile  # add more Pokémon
 
-        caught [-D dbfile] export [-o file] [game ...]  # Exports all games by default
+        caught [-D dbfile] export [-o file] [game ...]  # Exports all games by default (as JSON?)
         caught [-D dbfile] import [file | -]
 
     - By default, "game" arguments that are all digits are interpreted as game

@@ -7,6 +7,11 @@ from   caughtdb import CaughtDB, Game, Pokemon
 
 default_dbfile = os.environ["HOME"] + '/.caughtdb'
 
+# TODO: Improve these
+statusLabels = {CaughtDB.UNCAUGHT: '  ',
+                CaughtDB.CAUGHT:   '✓ ',
+                CaughtDB.OWNED:    '✓✓'}
+
 def getGame(db, args, game):
     if game.isdigit() and not args.force_gname:
         return db.getGameById(int(game))
@@ -31,16 +36,39 @@ for name in ('add', 'own', 'release', 'uncatch'):
     sp.add_argument('pokemon', nargs='+')
 args = parser.parse_args()
 
+subparser_get = parser.add_parser('get')
+subparser_get.add_argument('game')
+subparser_get.add_argument('pokemon', nargs='*')
+
 try:
     with CaughtDB(args.dbfile) as db:
+
         if args.cmd == 'new':
             gameID, _ = db.newGame(args.version, args.playername, args.dexsize,
                                    args.altnames)
             print gameID
+
         elif args.cmd == 'add':
             game = getGame(db, args, args.game)
             for poke in args.pokemon:
                 pokedata = db.getPokemon(poke)
                 db.markCaught(game, pokedata)
+
+        elif args.cmd == 'get':
+            game = getGame(db, args, args.game)
+            if args.pokemon:
+                for poke in args.pokemon:
+                    try:
+                        pokedata = db.getPokemon(poke)
+                    except NoSuchPokemonError as e:
+                        sys.stderr.write(sys.argv[0] + ': ' + str(e) + "\n")
+                    else:
+                        status = db.getStatus(game, pokedata)
+                        print '%s %3d. %s' % (statusLabels[status], pokedata.dexno, pokedata.name)
+            else:
+                for pokedata in db.allPokemon(maxno=game.dexsize):
+                    status = db.getStatus(game, pokedata)
+                    print '%s %3d. %s' % (statusLabels[status], pokedata.dexno, pokedata.name)
+
 except CaughtDBError as e:
     raise SystemExit(sys.argv[0] + ': ' + str(e))

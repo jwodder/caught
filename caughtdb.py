@@ -47,7 +47,7 @@ CREATE TABLE caught (gameID INTEGER NOT NULL REFERENCES games(gameID),
         return False
 
     def create(self, pokedex):
-        self.db.executescript(SCHEMA)
+        self.db.executescript(self.SCHEMA)
         with open(pokedex) as dex:
             for (lineno, line) in enumerate(dex, start=1):
                 line = line.strip()
@@ -149,7 +149,7 @@ CREATE TABLE caught (gameID INTEGER NOT NULL REFERENCES games(gameID),
                                            ' player_name, dexsize FROM games'
                                            ' ORDER BY gameID ASC')]
 
-    def allPokémon(self, maxno=None):
+    def allPokemon(self, maxno=None):
         if maxno is None:
             results = self.db.execute('SELECT dexno, name FROM pokemon'
                                       ' ORDER BY dexno ASC')

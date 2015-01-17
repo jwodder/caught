@@ -3,6 +3,7 @@
 import argparse
 import os
 import sys
+import caughtdb
 from   caughtdb import CaughtDB, Game, Pokemon
 
 default_dbfile = os.environ["HOME"] + '/.caughtdb'
@@ -18,11 +19,11 @@ def getGame(db, args, game):
     else:
         return db.getGame(game)
 
-parser = argparse.ArgumentParser
+parser = argparse.ArgumentParser()
 parser.add_argument('-D', '--dbfile', default=default_dbfile)
 parser.add_argument('-G', dest='force_gname', action='store_true')
 
-subparser = parser.add_subparsers('command', dest='cmd')
+subparser = parser.add_subparsers(title='command', dest='cmd')
 
 subparser_new = subparser.add_parser('new')
 subparser_new.add_argument('version')
@@ -34,12 +35,12 @@ for name in ('add', 'own', 'release', 'uncatch'):
     sp = subparser.add_parser(name)
     sp.add_argument('game')
     sp.add_argument('pokemon', nargs='+')
-args = parser.parse_args()
 
-subparser_get = parser.add_parser('get')
+subparser_get = subparser.add_parser('get')
 subparser_get.add_argument('game')
 subparser_get.add_argument('pokemon', nargs='*')
 
+args = parser.parse_args()
 try:
     with CaughtDB(args.dbfile) as db:
 
@@ -60,15 +61,17 @@ try:
                 for poke in args.pokemon:
                     try:
                         pokedata = db.getPokemon(poke)
-                    except NoSuchPokemonError as e:
+                    except caughtdb.NoSuchPokemonError as e:
                         sys.stderr.write(sys.argv[0] + ': ' + str(e) + "\n")
                     else:
                         status = db.getStatus(game, pokedata)
-                        print '%s %3d. %s' % (statusLabels[status], pokedata.dexno, pokedata.name)
+                        print '%s %3d. %s' % (statusLabels[status],
+                                              pokedata.dexno, pokedata.name)
             else:
                 for pokedata in db.allPokemon(maxno=game.dexsize):
                     status = db.getStatus(game, pokedata)
-                    print '%s %3d. %s' % (statusLabels[status], pokedata.dexno, pokedata.name)
+                    print '%s %3d. %s' % (statusLabels[status], pokedata.dexno,
+                                          pokedata.name)
 
-except CaughtDBError as e:
+except caughtdb.CaughtDBError as e:
     raise SystemExit(sys.argv[0] + ': ' + str(e))

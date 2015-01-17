@@ -64,7 +64,9 @@
 - Add support for regional Pokédexes
 - Add commands & methods for adding & removing game altnames?
 - Add commands & methods for deleting games
-- Merge `mkcaughtdb.py` into `caught.py`?
+- Merge `mkcaughtdb.py` into `caught.py` (and then merge `caughtdb.py` back
+  into `caught.py`) ?
+- Make the `dbfile` argument to `mkcaughtdb.py` optional
 
 - Possible way to handle game names:
     - Creating a game entry with version `version` and player name `player`
@@ -78,9 +80,9 @@
           `version:player:1`?  If so, should `version:player` be automatically
           reassigned to the newest game with those parameters whenever such a
           game is created?
-    - Upon successful completion, `caught new` prints out the new game's
-      `gameID` and all `game_names` entries.
-    - When looking up a game by name, if there exists a `game_names` entry for
-      that name, it is used.  Otherwise, all games whose `version` and/or
-      `player_name` equals the supplied string are queried; if there is exactly
-      one, it is used, otherwise it is an error.
+    - TO IMPLEMENT: Upon successful completion, `caught new` prints out the new
+      game's `gameID` and all `game_names` entries.
+    - TO IMPLEMENT: When looking up a game by name, if there exists a
+      `game_names` entry for that name, it is used.  Otherwise, all games whose
+      `version` and/or `player_name` equals the supplied string are queried; if
+      there is exactly one, it is used, otherwise it is an error.

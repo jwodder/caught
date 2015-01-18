@@ -8,7 +8,7 @@ from   caughtdb import CaughtDB, Game, Pokemon
 
 default_dbfile = os.environ["HOME"] + '/.caughtdb'
 
-# TODO: Improve these
+# TODO: Improve these:
 statusLabels = {CaughtDB.UNCAUGHT: '  ',
                 CaughtDB.CAUGHT:   '✓ ',
                 CaughtDB.OWNED:    '✓✓'}
@@ -54,6 +54,24 @@ try:
             for poke in args.pokemon:
                 pokedata = db.getPokemon(poke)
                 db.markCaught(game, pokedata)
+
+        elif args.cmd == 'own':
+            game = getGame(db, args, args.game)
+            for poke in args.pokemon:
+                pokedata = db.getPokemon(poke)
+                db.markOwned(game, pokedata)
+
+        elif args.cmd == 'release':
+            game = getGame(db, args, args.game)
+            for poke in args.pokemon:
+                pokedata = db.getPokemon(poke)
+                db.markRelease(game, pokedata)
+
+        elif args.cmd == 'uncatch':
+            game = getGame(db, args, args.game)
+            for poke in args.pokemon:
+                pokedata = db.getPokemon(poke)
+                db.markUncaught(game, pokedata)
 
         elif args.cmd == 'get':
             game = getGame(db, args, args.game)

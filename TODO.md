@@ -56,6 +56,8 @@
     - Fill in 'help', 'metavar', and other help message-related values for
       argparse
     - Once `newGame` returns a complete `Game` object, print it out
+    - Give all of the commands that take a list of Pokémon an `-F file` option
+      for reading the list from a file instead
 - Add functionality (accessed through caught.py or another program?) for
   extending/updating the Pokédex
 - Should CaughtDB and/or caught.py raise an error when trying to set the status

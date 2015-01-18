@@ -15,7 +15,7 @@ statusLabels = {CaughtDB.UNCAUGHT: '  ',
 
 def getGame(db, args, game):
     if game.isdigit() and not args.force_gname:
-        return db.getGameById(int(game))
+        return db.getGameByID(int(game))
     else:
         return db.getGame(game)
 

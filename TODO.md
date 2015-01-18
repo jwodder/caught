@@ -5,7 +5,7 @@
     - Add a method for getting a range of Pokémon & statuses for a given game?
     - Should `setStatus` check its `status` argument for validity?
     - Add `commit` and `rollback` methods
-    - Add `getPokemonByDexno` and `getGameById` methods
+    - Add a `getPokemonByDexno` method
     - `newGame` should return a complete `Game` object
     - `newGame` should take an argument to control whether a
       `version:playername[:N]` altname is created

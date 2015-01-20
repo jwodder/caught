@@ -31,7 +31,9 @@
         caught [-D dbfile] release game pokemon ...   # owned → caught
         caught [-D dbfile] uncaught game pokemon ...  # * → uncaught
 
-        caught [-D dbfile] games [-q]  # `-q` causes dex progress to be printed
+        caught [-D dbfile] games [-s]  # `-s` causes dex progress to be printed
+        # output is in YAML just to make some attempt at parseability
+        # TODO: Add a `-J` option for outputting JSON
 
 	caught [-D dbfile] list status game [pokemon|dexno|dexno_range ...]
 
@@ -58,6 +60,8 @@
     - Once `newGame` returns a complete `Game` object, print it out
     - Give all of the commands that take a list of Pokémon an `-F file` option
       for reading the list from a file instead
+    - Add a command for showing all information about a specific game (or
+      Pokémon?)
 - Add functionality (accessed through caught.py or another program?) for
   extending/updating the Pokédex
 - Should CaughtDB and/or caught.py raise an error when trying to set the status
@@ -69,6 +73,7 @@
 - Merge `mkcaughtdb.py` into `caught.py` (and then merge `caughtdb.py` back
   into `caught.py`) ?
 - Make the `dbfile` argument to `mkcaughtdb.py` optional
+- Rethink whether each Pokémon should have its dexno as an altname
 
 - Possible way to handle game names:
     - Creating a game entry with version `version` and player name `player`

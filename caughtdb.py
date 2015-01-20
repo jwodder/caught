@@ -149,7 +149,7 @@ CREATE TABLE caught (gameID INTEGER NOT NULL REFERENCES games(gameID),
                                   ' AND status = ?', (int(game), self.CAUGHT))
         owned,  = self.db.execute('SELECT count(*) FROM caught WHERE gameID = ?'
                                   ' AND status = ?', (int(game), self.OWNED))
-        return (caught, owned)
+        return (caught[0], owned[0])
 
     def allGames(self):
         return [Game(*(row + (self.get_game_names(row[0]),)))
@@ -188,9 +188,9 @@ CREATE TABLE caught (gameID INTEGER NOT NULL REFERENCES games(gameID),
                                       .replace('%', r'\%') \
                                       .replace('_', r'\_')
                 n = 1
-                for name in cursor.execute('SELECT name FROM game_names'
-                                           ' WHERE name LIKE ? ESCAPE ?',
-                                           (escapebase + ':%', '\\')):
+                for name, in cursor.execute('SELECT name FROM game_names'
+                                            ' WHERE name LIKE ? ESCAPE ?',
+                                            (escapebase + ':%', '\\')):
                     name = name[len(colonbase)+1:]
                     try:
                         m = int(name)
@@ -204,14 +204,14 @@ CREATE TABLE caught (gameID INTEGER NOT NULL REFERENCES games(gameID),
         return (gameID, colonbase)
 
     def get_pokemon_names(self, dexno):  # internal function
-        return list(self.db.execute('SELECT name FROM pokemon_names'
-                                    ' WHERE dexno=? ORDER BY name ASC',
-                                    (dexno,)))
+        return sum(self.db.execute('SELECT name FROM pokemon_names'
+                                   ' WHERE dexno=? ORDER BY name ASC',
+                                   (dexno,)), ())
 
     def get_game_names(self, gameID):  # internal function
-        return list(self.db.execute('SELECT name FROM game_names'
-                                    ' WHERE gameID=? ORDER BY name ASC',
-                                    (gameID,)))
+        return sum(self.db.execute('SELECT name FROM game_names'
+                                   ' WHERE gameID=? ORDER BY name ASC',
+                                   (gameID,)), ())
 
 
 class Game(namedtuple('Game', 'gameID version player_name dexsize altnames')):

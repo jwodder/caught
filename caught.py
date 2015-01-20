@@ -40,6 +40,9 @@ subparser_get = subparser.add_parser('get')
 subparser_get.add_argument('game')
 subparser_get.add_argument('pokemon', nargs='*')
 
+subparser_games = subparser.add_parser('games')
+subparser_games.add_argument('-s', dest='stats', action='store_true')
+
 args = parser.parse_args()
 try:
     with CaughtDB(args.dbfile) as db:
@@ -80,6 +83,7 @@ try:
                     try:
                         pokedata = db.getPokemon(poke)
                     except caughtdb.NoSuchPokemonError as e:
+                        ### Should this use the `warnings` module?
                         sys.stderr.write(sys.argv[0] + ': ' + str(e) + "\n")
                     else:
                         status = db.getStatus(game, pokedata)
@@ -90,6 +94,21 @@ try:
                     status = db.getStatus(game, pokedata)
                     print '%s %3d. %s' % (statusLabels[status], pokedata.dexno,
                                           pokedata.name)
+
+        elif args.cmd == 'games':
+            for game in db.allGames():
+                print '- game ID: ' + str(game.gameID)
+                print '  version: ' + game.version
+                print '  player name: ' + game.player_name
+                print '  dexsize: ' + str(game.dexsize)
+                print '  altnames:'
+                for altname in game.altnames:
+                    print '    - ' + altname
+                if args.stats:
+                    caught, owned = db.getGameCount(game)
+                    print  '  caught or owned: ' + str(caught+owned)
+                    print  '  owned: ' + str(owned)
+                print
 
 except caughtdb.CaughtDBError as e:
     raise SystemExit(sys.argv[0] + ': ' + str(e))

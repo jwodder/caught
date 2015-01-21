@@ -6,7 +6,6 @@
     - Should `setStatus` check its `status` argument for validity?
     - Add `commit` and `rollback` methods
     - Add a `getPokemonByDexno` method
-    - `newGame` should return a complete `Game` object
     - `newGame` should take an argument to control whether a
       `version:playername[:N]` altname is created
     - `newGame` should take an argument to control whether duplicate altnames

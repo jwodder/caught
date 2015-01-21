@@ -201,7 +201,8 @@ CREATE TABLE caught (gameID INTEGER NOT NULL REFERENCES games(gameID),
                 colonbase += ':' + str(n+1)
                 cursor.execute('INSERT INTO game_names (gameID, name) VALUES'
                                ' (?,?)', (gameID, colonbase))
-        return (gameID, colonbase)
+            altnames += (colonbase,)
+        return Game(gameID, version, player_name, int(dexsize), altnames)
 
     def get_pokemon_names(self, dexno):  # internal function
         return sum(self.db.execute('SELECT name FROM pokemon_names'

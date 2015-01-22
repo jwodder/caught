@@ -48,9 +48,9 @@ try:
     with CaughtDB(args.dbfile) as db:
 
         if args.cmd == 'new':
-            gameID, _ = db.newGame(args.version, args.playername, args.dexsize,
-                                   args.altnames)
-            print gameID
+            gameID = db.newGame(args.version, args.playername, args.dexsize,
+                                args.altnames)
+            print gameID.asYAML()
 
         elif args.cmd == 'add':
             game = getGame(db, args, args.game)

@@ -56,7 +56,6 @@
           backup
     - Fill in 'help', 'metavar', and other help message-related values for
       argparse
-    - Once `newGame` returns a complete `Game` object, print it out
     - Give all of the commands that take a list of Pokémon an `-F file` option
       for reading the list from a file instead
     - Add a command for showing all information about a specific game (or
@@ -73,6 +72,8 @@
   into `caught.py`) ?
 - Make the `dbfile` argument to `mkcaughtdb.py` optional
 - Rethink whether each Pokémon should have its dexno as an altname
+- Add a table (and a TSV file) listing possible versions and their
+  corresponding dexsizes (and, eventually, regional dexes)
 
 - Possible way to handle game names:
     - Creating a game entry with version `version` and player name `player`

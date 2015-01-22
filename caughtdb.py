@@ -217,8 +217,23 @@ CREATE TABLE caught (gameID INTEGER NOT NULL REFERENCES games(gameID),
 
 class Game(namedtuple('Game', 'gameID version player_name dexsize altnames')):
     __slots__ = ()
+
     def __int__(self): return self.gameID
 
+    def asYAML(self, caught_or_owned=None, owned=None):
+        s = '''
+- game ID: %d
+  version: %s
+  player name: %s
+  dexsize: %d
+  altnames:
+%s
+'''.strip() % (self.gameID, self.version, self.player_name, self.dexsize, ''.join('    - ' + a + '\n' for a in self.altnames))
+        if caught_or_owned is not None:
+            s += '  caught or owned: ' + str(caught_or_owned) + '\n'
+        if owned is not None:
+            s += '  owned: ' + str(owned) + '\n'
+        return s
 
 class Pokemon(namedtuple('Pokemon', 'dexno name altnames')):
     __slots__ = ()

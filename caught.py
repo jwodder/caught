@@ -97,18 +97,11 @@ try:
 
         elif args.cmd == 'games':
             for game in db.allGames():
-                print '- game ID: ' + str(game.gameID)
-                print '  version: ' + game.version
-                print '  player name: ' + game.player_name
-                print '  dexsize: ' + str(game.dexsize)
-                print '  altnames:'
-                for altname in game.altnames:
-                    print '    - ' + altname
                 if args.stats:
                     caught, owned = db.getGameCount(game)
-                    print  '  caught or owned: ' + str(caught+owned)
-                    print  '  owned: ' + str(owned)
-                print
+                    print game.asYAML(caught+owned, owned)
+                else:
+                    print game.asYAML()
 
 except caughtdb.CaughtDBError as e:
     raise SystemExit(sys.argv[0] + ': ' + str(e))

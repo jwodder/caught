@@ -46,6 +46,12 @@ CREATE TABLE caught (gameID INTEGER NOT NULL REFERENCES games(gameID),
         self.db.close()
         return False
 
+    def commit(self):
+        self.db.commit()
+
+    def rollback(self):
+        self.db.rollback()
+
     def create(self, pokedex):
         self.db.executescript(self.SCHEMA)
         with open(pokedex) as dex:
@@ -66,7 +72,6 @@ CREATE TABLE caught (gameID INTEGER NOT NULL REFERENCES games(gameID),
                 self.db.executemany('INSERT OR ROLLBACK INTO pokemon_names'
                                     ' (dexno, name) VALUES (?,?)',
                                     ((dexno, name.lower()) for name in fields))
-        self.db.commit()
 
     def getPokemon(self, name):
         """Returns the ``Pokemon`` object for the Pokémon with the given name.

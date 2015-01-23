@@ -4,7 +4,6 @@
       given game
     - Add a method for getting a range of Pokémon & statuses for a given game?
     - Should `setStatus` check its `status` argument for validity?
-    - Add `commit` and `rollback` methods
     - Add a `getPokemonByDexno` method
     - `newGame` should take an argument to control whether a
       `version:playername[:N]` altname is created
@@ -44,7 +43,9 @@
 
         caught [-D dbfile] update tsvfile  # add more Pokémon
 
-        caught [-D dbfile] export [-o file] [game ...]  # Exports all games by default (as JSON?)
+        caught [-D dbfile] export [-o file] [game ...]
+        # Exports all games by default (as JSON?)
+
         caught [-D dbfile] import [file | -]
 
     - By default, "game" arguments that are all digits are interpreted as game
@@ -87,8 +88,6 @@
           `version:player:1`?  If so, should `version:player` be automatically
           reassigned to the newest game with those parameters whenever such a
           game is created?
-    - TO IMPLEMENT: Upon successful completion, `caught new` prints out the new
-      game's `gameID` and all `game_names` entries.
     - TO IMPLEMENT: When looking up a game by name, if there exists a
       `game_names` entry for that name, it is used.  Otherwise, all games whose
       `version` and/or `player_name` equals the supplied string are queried; if

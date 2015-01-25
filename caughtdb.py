@@ -212,6 +212,11 @@ CREATE TABLE caught (gameID INTEGER NOT NULL REFERENCES games(gameID),
             altnames += (colonbase,)
         return Game(gameID, version, player_name, int(dexsize), altnames)
 
+    def deleteGame(self, game):
+        self.db.execute('DELETE FROM caught WHERE gameID=?', (int(game),))
+        self.db.execute('DELETE FROM game_names WHERE gameID=?', (int(game),))
+        self.db.execute('DELETE FROM games WHERE gameID=?', (int(game),))
+
     def get_pokemon_names(self, dexno):  # internal function
         return sum(self.db.execute('SELECT name FROM pokemon_names'
                                    ' WHERE dexno=? ORDER BY name ASC',

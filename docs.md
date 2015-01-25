@@ -3,6 +3,9 @@
 ### Command-line functionality already implemented
 
 - The `-D`/`--dbfile` and `-G` global options
+- By default, "game" arguments that are all digits are interpreted as game IDs,
+  unless the program-wide option `-G` is supplied, which forces them to be
+  interpreted as regular names.
 
     caught new version playername dexsize [altnames ...]
 

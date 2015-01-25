@@ -31,6 +31,10 @@ subparser_new.add_argument('playername')
 subparser_new.add_argument('dexsize', type=int)
 subparser_new.add_argument('altnames', nargs='*')
 
+subparser_delete = subparser.add_parser('delete')
+subparser_delete.add_argument('-f', dest='force', action='store_true')
+subparser_delete.add_argument('games', nargs='+')
+
 for name in ('add', 'own', 'release', 'uncatch'):
     sp = subparser.add_parser(name)
     sp.add_argument('game')
@@ -53,6 +57,23 @@ try:
             gameID = db.newGame(args.version, args.playername, args.dexsize,
                                 args.altnames)
             print gameID.asYAML()
+
+        elif args.cmd == 'delete':
+            for g in args.games:
+                game = getGame(db, args, g)
+                yesdel = args.force
+                while not yesdel:
+                    response = raw_input('Really delete ' + g + '? (y/n) ')\
+                                        .strip().lower()
+                    if response in ('y', 'yes'):
+                        yesdel = True
+                    elif response in ('n', 'no'):
+                        yesdel = False
+                        break
+                    else:
+                        print 'Invalid response.'
+                if yesdel:
+                    db.deleteGame(game)
 
         elif args.cmd == 'add':
             game = getGame(db, args, args.game)

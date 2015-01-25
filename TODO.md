@@ -40,9 +40,6 @@
 
         caught import [file | -]
 
-    - By default, "game" arguments that are all digits are interpreted as game
-      IDs, unless the program-wide option `-G` is supplied, which forces them
-      to be interpreted as regular names.
     - Add functionality for automatically backing up the database?
         - Idea: Add a program-wide option for backing up the database before
           performing any operations, and add a command for restoring from a
@@ -57,6 +54,7 @@
       altname
     - Give `new` an option to ignore altnames that already exist
     - Give `new` an option for setting the game ID?
+    - Let the `games` command take an optional list of games to describe
 
 - Add functionality (accessed through caught.py or another program?) for
   extending/updating the Pokédex
@@ -65,7 +63,6 @@
 - Add support for keeping track of Unown forms
 - Add support for regional Pokédexes
 - Add commands & methods for adding & removing game altnames?
-- Add commands & methods for deleting games
 - Merge `mkcaughtdb.py` into `caught.py` (and then merge `caughtdb.py` back
   into `caught.py`) ?
 - Make the `dbfile` argument to `mkcaughtdb.py` optional

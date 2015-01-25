@@ -19,16 +19,6 @@
 - `caught.py`:
     - Intended command-line usages to implement:
 
-        caught [-D dbfile] new version playername dexsize [altnames ...]
-        # Add option to turn off creation of `version:playername[:N]` altname
-        # Add option to ignore altnames that already exist
-        # Add an option for setting the game ID?
-
-        caught [-D dbfile] add game pokemon ...       # uncaught → caught
-        caught [-D dbfile] own game pokemon ...       # * → owned
-        caught [-D dbfile] release game pokemon ...   # owned → caught
-        caught [-D dbfile] uncaught game pokemon ...  # * → uncaught
-
         caught [-D dbfile] games [-s]  # `-s` causes dex progress to be printed
         # output is in YAML just to make some attempt at parseability
         # TODO: Add a `-J` option for outputting JSON
@@ -67,6 +57,11 @@
       for reading the list from a file instead
     - Add a command for showing all information about a specific game (or
       Pokémon?)
+    - Give `new` an option to turn off creation of the `version:playername[:N]`
+      altname
+    - Give `new` an option to ignore altnames that already exist
+    - Give `new` an option for setting the game ID?
+
 - Add functionality (accessed through caught.py or another program?) for
   extending/updating the Pokédex
 - Should CaughtDB and/or caught.py raise an error when trying to set the status
@@ -84,20 +79,16 @@
 - Generalize the code into being able to track completion of sets
   (corresponding to games) of arbitrary checklists
 - Rename "altnames" to "synonyms"
-
-- Possible way to handle game names:
-    - Creating a game entry with version `version` and player name `player`
-      creates a `game_names` entry `version:player`; if such an entry already
-      exists, the new `game_names` entry is instead named `version:player:N`,
-      where `N` is the number of `game_names` entries of the form
-      `/^version:player(:.*)?$/` already present.  Neither `version` nor
-      `player` is added to `game_names` unless it explicitly appears in the
-      "altnames" list for the game creation command.
-        - Should the first game to have a `version:player` name also have
-          `version:player:1`?  If so, should `version:player` be automatically
-          reassigned to the newest game with those parameters whenever such a
-          game is created?
-    - TO IMPLEMENT: When looking up a game by name, if there exists a
-      `game_names` entry for that name, it is used.  Otherwise, all games whose
-      `version` and/or `player_name` equals the supplied string are queried; if
-      there is exactly one, it is used, otherwise it is an error.
+- Instead of the version+player_name+altnames system, each game should have a
+  single canonical name (which is used in the headings of tabular output) and
+  zero or more altnames, with 'version' and 'player_name' being (optional?)
+  extra fields that are not used in naming and simply describe the game further
+  (and can be searched, e.g., getting all Diamond games?)
+- Should the first game to have a `version:player` name also have
+  `version:player:1`?  If so, should `version:player` be automatically
+  reassigned to the newest game with those parameters whenever such a game is
+  created?
+- TO IMPLEMENT: When looking up a game by name, if there exists a `game_names`
+  entry for that name, it is used.  Otherwise, all games whose `version` and/or
+  `player_name` equals the supplied string are queried; if there is exactly
+  one, it is used, otherwise it is an error.

@@ -243,6 +243,25 @@ class Game(namedtuple('Game', 'gameID version player_name dexsize altnames')):
             s += '  owned: ' + str(owned) + '\n'
         return s
 
+    def asDict(self, caught_or_owned=None, owned=None):
+        d = {
+                "game ID": self.gameID,
+                "version": self.version,
+                "player name": self.player_name,
+                "dexsize": self.dexsize,
+                "altnames": list(self.altnames)
+            }
+        if caught_or_owned is not None:
+            d["caught or owned"] = caught_or_owned
+        if owned is not None:
+            d["owned"] = owned
+        return d
+
+    def asJSON(self, caught_or_owned=None, owned=None):
+        import json
+        return json.dumps(self.asDict(caught_or_owned, owned))
+
+
 class Pokemon(namedtuple('Pokemon', 'dexno name altnames')):
     __slots__ = ()
     def __int__(self): return self.dexno

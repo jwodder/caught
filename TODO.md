@@ -19,11 +19,7 @@
 - `caught.py`:
     - Intended command-line usages to implement:
 
-        caught [-D dbfile] games [-s]  # `-s` causes dex progress to be printed
-        # output is in YAML just to make some attempt at parseability
-        # TODO: Add a `-J` option for outputting JSON
-
-        caught [-D dbfile] list status game [pokemon|dexno|dexno_range ...]
+        caught list status game [pokemon|dexno|dexno_range ...]
         # Statuses:
         # - uncaught
         # - caught
@@ -32,17 +28,17 @@
         # - status1/status2 - all Pokémon with either status
         # - status1/status2/status3 - all Pokémon (just for completeness's sake)
 
-        caught [-D dbfile] get game [pokemon|dexno|dexno_range ...]
+        caught get game [pokemon|dexno|dexno_range ...]
 
-        caught [-D dbfile] getall [--games game1,game2]  # List all Pokémon in all games in a table
-        caught [-D dbfile] getall [--games game1,game2] pokemon|dexno|dexno_range ...
+        caught getall [--games game1,game2]  # List all Pokémon in all games in a table
+        caught getall [--games game1,game2] pokemon|dexno|dexno_range ...
 
-        caught [-D dbfile] update tsvfile  # add more Pokémon
+        caught update tsvfile  # add more Pokémon
 
-        caught [-D dbfile] export [-o file] [game ...]
+        caught export [-o file] [game ...]
         # Exports all games by default (as JSON?)
 
-        caught [-D dbfile] import [file | -]
+        caught import [file | -]
 
     - By default, "game" arguments that are all digits are interpreted as game
       IDs, unless the program-wide option `-G` is supplied, which forces them
@@ -79,11 +75,6 @@
 - Generalize the code into being able to track completion of sets
   (corresponding to games) of arbitrary checklists
 - Rename "altnames" to "synonyms"
-- Instead of the version+player_name+altnames system, each game should have a
-  single canonical name (which is used in the headings of tabular output) and
-  zero or more altnames, with 'version' and 'player_name' being (optional?)
-  extra fields that are not used in naming and simply describe the game further
-  (and can be searched, e.g., getting all Diamond games?)
 - Should the first game to have a `version:player` name also have
   `version:player:1`?  If so, should `version:player` be automatically
   reassigned to the newest game with those parameters whenever such a game is
@@ -92,3 +83,8 @@
   entry for that name, it is used.  Otherwise, all games whose `version` and/or
   `player_name` equals the supplied string are queried; if there is exactly
   one, it is used, otherwise it is an error.
+- Instead of the version+player_name+altnames system, each game should have a
+  single canonical name (which is used in the headings of tabular output) and
+  zero or more altnames, with 'version' and 'player_name' being (optional?)
+  extra fields that are not used in naming and simply describe the game further
+  (and can be searched, e.g., getting all Diamond games?)

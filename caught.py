@@ -41,6 +41,7 @@ subparser_get.add_argument('game')
 subparser_get.add_argument('pokemon', nargs='*')
 
 subparser_games = subparser.add_parser('games')
+subparser_games.add_argument('-J', dest='as_json', action='store_true')
 subparser_games.add_argument('-s', dest='stats', action='store_true')
 
 args = parser.parse_args()
@@ -97,12 +98,20 @@ try:
                                           pokedata.name)
 
         elif args.cmd == 'games':
-            for game in db.allGames():
-                if args.stats:
+            if args.stats:
+                def gameArgs(game):
                     caught, owned = db.getGameCount(game)
-                    print game.asYAML(caught+owned, owned)
-                else:
-                    print game.asYAML()
+                    return (caught+owned, owned)
+            else:
+                gameArgs = lambda _: ()
+            if args.as_json:
+                jsonses = []
+                for game in db.allGames():
+                    jsonses.append(game.asJSON(*gameArgs(game)))
+                print '[' + ', '.join(jsonses) + ']'
+            else:
+                for game in db.allGames():
+                    print game.asYAML(*gameArgs(game))
 
 except caughtdb.CaughtDBError as e:
     raise SystemExit(sys.argv[0] + ': ' + str(e))

@@ -33,13 +33,19 @@
         # output is in YAML just to make some attempt at parseability
         # TODO: Add a `-J` option for outputting JSON
 
-	caught [-D dbfile] list status game [pokemon|dexno|dexno_range ...]
+        caught [-D dbfile] list status game [pokemon|dexno|dexno_range ...]
+        # Statuses:
+        # - uncaught
+        # - caught
+        # - caught+ - equivalent to `caught/owned`
+        # - owned
+        # - status1/status2 - all Pokémon with either status
+        # - status1/status2/status3 - all Pokémon (just for completeness's sake)
 
-        # Rename `table` to `get`?
-        caught [-D dbfile] table game[,game...]  # List all Pokémon up through maximum `dexsize`
-        caught [-D dbfile] table game[,game...] pokemon|dexno|dexno_range ...
-        caught [-D dbfile] table -A  # List all Pokémon in all games in a table
-        caught [-D dbfile] table -A pokemon|dexno|dexno_range ...
+        caught [-D dbfile] get game [pokemon|dexno|dexno_range ...]
+
+        caught [-D dbfile] getall [--games game1,game2]  # List all Pokémon in all games in a table
+        caught [-D dbfile] getall [--games game1,game2] pokemon|dexno|dexno_range ...
 
         caught [-D dbfile] update tsvfile  # add more Pokémon
 
@@ -77,6 +83,7 @@
   corresponding dexsizes (and, eventually, regional dexes)
 - Generalize the code into being able to track completion of sets
   (corresponding to games) of arbitrary checklists
+- Rename "altnames" to "synonyms"
 
 - Possible way to handle game names:
     - Creating a game entry with version `version` and player name `player`

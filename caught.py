@@ -8,7 +8,7 @@ from   caughtdb import CaughtDB, Game, Pokemon
 
 default_dbfile = os.environ["HOME"] + '/.caughtdb'
 
-# TODO: Improve these:
+### TODO: Improve these:
 statusLabels = {CaughtDB.UNCAUGHT: '  ',
                 CaughtDB.CAUGHT:   '✓ ',
                 CaughtDB.OWNED:    '✓✓'}
@@ -44,6 +44,7 @@ subparser_games = subparser.add_parser('games')
 subparser_games.add_argument('-s', dest='stats', action='store_true')
 
 args = parser.parse_args()
+
 try:
     with CaughtDB(args.dbfile) as db:
 

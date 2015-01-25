@@ -75,6 +75,8 @@
 - Rethink whether each Pokémon should have its dexno as an altname
 - Add a table (and a TSV file) listing possible versions and their
   corresponding dexsizes (and, eventually, regional dexes)
+- Generalize the code into being able to track completion of sets
+  (corresponding to games) of arbitrary checklists
 
 - Possible way to handle game names:
     - Creating a game entry with version `version` and player name `player`

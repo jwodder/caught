@@ -52,6 +52,9 @@ CREATE TABLE caught (gameID INTEGER NOT NULL REFERENCES games(gameID),
     def rollback(self):
         self.db.rollback()
 
+    def close(self):
+        self.db.close()
+
     def create(self, pokedex):
         self.db.executescript(self.SCHEMA)
         with open(pokedex) as dex:

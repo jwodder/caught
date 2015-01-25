@@ -60,20 +60,25 @@ try:
 
         elif args.cmd == 'delete':
             for g in args.games:
-                game = getGame(db, args, g)
-                yesdel = args.force
-                while not yesdel:
-                    response = raw_input('Really delete ' + g + '? (y/n) ')\
-                                        .strip().lower()
-                    if response in ('y', 'yes'):
-                        yesdel = True
-                    elif response in ('n', 'no'):
-                        yesdel = False
-                        break
-                    else:
-                        print 'Invalid response.'
-                if yesdel:
-                    db.deleteGame(game)
+                try:
+                    game = getGame(db, args, g)
+                except NoSuchGameError as e:
+                    ### Should this use the `warnings` module?
+                    sys.stderr.write(sys.argv[0] + ': ' + str(e) + "\n")
+                else:
+                    yesdel = args.force
+                    while not yesdel:
+                        response = raw_input('Really delete ' + g + '? (y/n) ')\
+                                            .strip().lower()
+                        if response in ('y', 'yes'):
+                            yesdel = True
+                        elif response in ('n', 'no'):
+                            yesdel = False
+                            break
+                        else:
+                            print 'Invalid response.'
+                    if yesdel:
+                        db.deleteGame(game)
 
         elif args.cmd == 'add':
             game = getGame(db, args, args.game)

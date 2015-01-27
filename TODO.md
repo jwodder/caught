@@ -54,7 +54,6 @@
       altname
     - Give `new` an option to ignore altnames that already exist
     - Give `new` an option for setting the game ID?
-    - Let the `games` command take an optional list of games to describe
 
 - Add functionality (accessed through caught.py or another program?) for
   extending/updating the Pokédex

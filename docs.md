@@ -9,7 +9,7 @@
 
     caught new version playername dexsize [altnames ...]
 
-    caught games [-Js]
+    caught games [-Js] [game ...]
     # Output is in YAML just to make some attempt at parseability
     # `-J` causes output to be JSON instead
     # `-s` causes dex progress to be printed

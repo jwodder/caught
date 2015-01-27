@@ -13,11 +13,21 @@ statusLabels = {CaughtDB.UNCAUGHT: '  ',
                 CaughtDB.CAUGHT:   '✓ ',
                 CaughtDB.OWNED:    '✓✓'}
 
-def getGame(db, args, game):
-    if game.isdigit() and not args.force_gname:
-        return db.getGameByID(int(game))
+def getGame(db, args, game, warn_on_fail=False):
+    try:
+        if game.isdigit() and not args.force_gname:
+            gamedata = db.getGameByID(int(game))
+        else:
+            gamedata = db.getGame(game)
+    except caughtdb.NoSuchGameError as e:
+        if warn_on_fail:
+            ### Should this use the `warnings` module?
+            sys.stderr.write(sys.argv[0] + ': ' + str(e) + "\n")
+            return None
+        else:
+            raise e
     else:
-        return db.getGame(game)
+        return gamedata
 
 parser = argparse.ArgumentParser()
 parser.add_argument('-D', '--dbfile', default=default_dbfile)
@@ -47,6 +57,7 @@ subparser_get.add_argument('pokemon', nargs='*')
 subparser_games = subparser.add_parser('games')
 subparser_games.add_argument('-J', dest='as_json', action='store_true')
 subparser_games.add_argument('-s', dest='stats', action='store_true')
+subparser_games.add_argument('games', nargs='*')
 
 args = parser.parse_args()
 
@@ -60,25 +71,22 @@ try:
 
         elif args.cmd == 'delete':
             for g in args.games:
-                try:
-                    game = getGame(db, args, g)
-                except NoSuchGameError as e:
-                    ### Should this use the `warnings` module?
-                    sys.stderr.write(sys.argv[0] + ': ' + str(e) + "\n")
-                else:
-                    yesdel = args.force
-                    while not yesdel:
-                        response = raw_input('Really delete ' + g + '? (y/n) ')\
-                                            .strip().lower()
-                        if response in ('y', 'yes'):
-                            yesdel = True
-                        elif response in ('n', 'no'):
-                            yesdel = False
-                            break
-                        else:
-                            print 'Invalid response.'
-                    if yesdel:
-                        db.deleteGame(game)
+                game = getGame(db, args, g, warn_on_fail=True)
+                if game is None:
+                    continue
+                yesdel = args.force
+                while not yesdel:
+                    response = raw_input('Really delete ' + g + '? (y/n) ')\
+                                        .strip().lower()
+                    if response in ('y', 'yes'):
+                        yesdel = True
+                    elif response in ('n', 'no'):
+                        yesdel = False
+                        break
+                    else:
+                        print 'Invalid response.'
+                if yesdel:
+                    db.deleteGame(game)
 
         elif args.cmd == 'add':
             game = getGame(db, args, args.game)
@@ -130,13 +138,18 @@ try:
                     return (caught+owned, owned)
             else:
                 gameArgs = lambda _: ()
+            if args.games:
+                games = filter(None, [getGame(db, args, g, warn_on_fail=True)
+                                      for g in args.games])
+            else:
+                games = db.allGames()
             if args.as_json:
                 jsonses = []
-                for game in db.allGames():
+                for game in games:
                     jsonses.append(game.asJSON(*gameArgs(game)))
                 print '[' + ', '.join(jsonses) + ']'
             else:
-                for game in db.allGames():
+                for game in games:
                     print game.asYAML(*gameArgs(game))
 
 except caughtdb.CaughtDBError as e:

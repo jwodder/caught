@@ -125,6 +125,10 @@ CREATE TABLE caught (gameID INTEGER NOT NULL REFERENCES games(gameID),
         return status
 
     def setStatus(self, game, poke, status):
+        status = int(status)
+        if status not in (self.UNCAUGHT, self.CAUGHT, self.OWNED):
+            ### Should this use a custom Exception type?
+            raise ValueError('%d: not a valid status' % (status,))
         if status == self.UNCAUGHT:
             self.db.execute('DELETE FROM caught WHERE gameID=? AND dexno=?',
                             (int(game), int(poke)))

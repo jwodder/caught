@@ -3,7 +3,6 @@
     - Add a method for getting a list of all Pokémon and their statuses for a
       given game
     - Add a method for getting a range of Pokémon & statuses for a given game?
-    - Should `setStatus` check its `status` argument for validity?
     - Add a `getPokemonByDexno` method
     - `newGame` should take an argument to control whether a
       `version:playername[:N]` altname is created
@@ -48,8 +47,7 @@
       argparse
     - Give all of the commands that take a list of Pokémon an `-F file` option
       for reading the list from a file instead
-    - Add a command for showing all information about a specific game (or
-      Pokémon?)
+    - Add a command for showing all information about a specific Pokémon?
     - Give `new` an option to turn off creation of the `version:playername[:N]`
       altname
     - Give `new` an option to ignore altnames that already exist
@@ -61,7 +59,7 @@
   for a Pokémon that is beyond a game's dexsize?
 - Add support for keeping track of Unown forms
 - Add support for regional Pokédexes
-- Add commands & methods for adding & removing game altnames?
+- Add commands & methods for adding & removing game altnames
 - Merge `mkcaughtdb.py` into `caught.py` (and then merge `caughtdb.py` back
   into `caught.py`) ?
 - Make the `dbfile` argument to `mkcaughtdb.py` optional

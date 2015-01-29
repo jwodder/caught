@@ -5,8 +5,8 @@
     - Add a method for getting a range of Pokémon & statuses for a given game?
     - Add a `getPokemonByDexno` method
     - `newGame` should take an argument to control whether a
-      `version:playername[:N]` altname is created
-    - `newGame` should take an argument to control whether duplicate altnames
+      `version:playername[:N]` synonym is created
+    - `newGame` should take an argument to control whether duplicate synonyms
       should be ignored instead of causing an error
     - Add a `getGameByName` method that (unlike `getGame`) only searches the
       `game_names` table (and add an option to `caught.py` for making use of
@@ -49,8 +49,8 @@
       for reading the list from a file instead
     - Add a command for showing all information about a specific Pokémon?
     - Give `new` an option to turn off creation of the `version:playername[:N]`
-      altname
-    - Give `new` an option to ignore altnames that already exist
+      synonym
+    - Give `new` an option to ignore synonyms that already exist
     - Give `new` an option for setting the game ID?
 
 - Add functionality (accessed through caught.py or another program?) for
@@ -59,16 +59,15 @@
   for a Pokémon that is beyond a game's dexsize?
 - Add support for keeping track of Unown forms
 - Add support for regional Pokédexes
-- Add commands & methods for adding & removing game altnames
+- Add commands & methods for adding & removing game synonyms
 - Merge `mkcaughtdb.py` into `caught.py` (and then merge `caughtdb.py` back
   into `caught.py`) ?
 - Make the `dbfile` argument to `mkcaughtdb.py` optional
-- Rethink whether each Pokémon should have its dexno as an altname
+- Rethink whether each Pokémon should have its dexno as an synonym
 - Add a table (and a TSV file) listing possible versions and their
   corresponding dexsizes (and, eventually, regional dexes)
 - Generalize the code into being able to track completion of sets
   (corresponding to games) of arbitrary checklists
-- Rename "altnames" to "synonyms"
 - Should the first game to have a `version:player` name also have
   `version:player:1`?  If so, should `version:player` be automatically
   reassigned to the newest game with those parameters whenever such a game is
@@ -77,8 +76,8 @@
   entry for that name, it is used.  Otherwise, all games whose `version` and/or
   `player_name` equals the supplied string are queried; if there is exactly
   one, it is used, otherwise it is an error.
-- Instead of the version+player_name+altnames system, each game should have a
+- Instead of the version+player_name+synonyms system, each game should have a
   single canonical name (which is used in the headings of tabular output) and
-  zero or more altnames, with 'version' and 'player_name' being (optional?)
+  zero or more synonyms, with 'version' and 'player_name' being (optional?)
   extra fields that are not used in naming and simply describe the game further
   (and can be searched, e.g., getting all Diamond games?)

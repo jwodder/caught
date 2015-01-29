@@ -39,7 +39,7 @@ subparser_new = subparser.add_parser('new')
 subparser_new.add_argument('version')
 subparser_new.add_argument('playername')
 subparser_new.add_argument('dexsize', type=int)
-subparser_new.add_argument('altnames', nargs='*')
+subparser_new.add_argument('synonyms', nargs='*')
 
 subparser_delete = subparser.add_parser('delete')
 subparser_delete.add_argument('-f', dest='force', action='store_true')
@@ -66,7 +66,7 @@ try:
 
         if args.cmd == 'new':
             gameID = db.newGame(args.version, args.playername, args.dexsize,
-                                args.altnames)
+                                args.synonyms)
             print gameID.asYAML()
 
         elif args.cmd == 'delete':

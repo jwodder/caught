@@ -180,18 +180,18 @@ CREATE TABLE caught (gameID INTEGER NOT NULL REFERENCES games(gameID),
         return [Pokemon(dexno, name, self.get_pokemon_names(dexno))
                 for dexno, name in results]
 
-    def newGame(self, version, player_name, dexsize, altnames):
+    def newGame(self, version, player_name, dexsize, synonyms):
         cursor = self.db.cursor()
         cursor.execute('INSERT INTO games (version, player_name, dexsize)'
                        ' VALUES (?,?,?)', (version, player_name, int(dexsize)))
         gameID = cursor.lastrowid
-        altnames = tuple(alt.lower() for alt in altnames)
+        synonyms = tuple(alt.lower() for alt in synonyms)
         cursor.executemany('INSERT INTO game_names (gameID, name) VALUES (?,?)',
-                           ((gameID, alt) for alt in altnames))
+                           ((gameID, alt) for alt in synonyms))
         specialName = None
         colonbase = version.lower() + ':' + player_name.lower()
         if not any(alt == colonbase or alt.startswith(colonbase + ':')
-                   for alt in altnames):
+                   for alt in synonyms):
             try:
                 cursor.execute('INSERT INTO game_names (gameID, name) VALUES'
                                ' (?,?)', (gameID, colonbase))
@@ -213,8 +213,8 @@ CREATE TABLE caught (gameID INTEGER NOT NULL REFERENCES games(gameID),
                 colonbase += ':' + str(n+1)
                 cursor.execute('INSERT INTO game_names (gameID, name) VALUES'
                                ' (?,?)', (gameID, colonbase))
-            altnames += (colonbase,)
-        return Game(gameID, version, player_name, int(dexsize), altnames)
+            synonyms += (colonbase,)
+        return Game(gameID, version, player_name, int(dexsize), synonyms)
 
     def deleteGame(self, game):
         self.db.execute('DELETE FROM caught WHERE gameID=?', (int(game),))
@@ -232,7 +232,7 @@ CREATE TABLE caught (gameID INTEGER NOT NULL REFERENCES games(gameID),
                                    (gameID,)), ())
 
 
-class Game(namedtuple('Game', 'gameID version player_name dexsize altnames')):
+class Game(namedtuple('Game', 'gameID version player_name dexsize synonyms')):
     __slots__ = ()
 
     def __int__(self): return self.gameID
@@ -243,9 +243,9 @@ class Game(namedtuple('Game', 'gameID version player_name dexsize altnames')):
   version: %s
   player name: %s
   dexsize: %d
-  altnames:
+  synonyms:
 %s
-'''.strip() % (self.gameID, self.version, self.player_name, self.dexsize, ''.join('    - ' + a + '\n' for a in self.altnames))
+'''.strip() % (self.gameID, self.version, self.player_name, self.dexsize, ''.join('    - ' + a + '\n' for a in self.synonyms))
         if caught_or_owned is not None:
             s += '  caught or owned: ' + str(caught_or_owned) + '\n'
         if owned is not None:
@@ -258,7 +258,7 @@ class Game(namedtuple('Game', 'gameID version player_name dexsize altnames')):
                 "version": self.version,
                 "player name": self.player_name,
                 "dexsize": self.dexsize,
-                "altnames": list(self.altnames)
+                "synonyms": list(self.synonyms)
             }
         if caught_or_owned is not None:
             d["caught or owned"] = caught_or_owned
@@ -271,7 +271,7 @@ class Game(namedtuple('Game', 'gameID version player_name dexsize altnames')):
         return json.dumps(self.asDict(caught_or_owned, owned))
 
 
-class Pokemon(namedtuple('Pokemon', 'dexno name altnames')):
+class Pokemon(namedtuple('Pokemon', 'dexno name synonyms')):
     __slots__ = ()
     def __int__(self): return self.dexno
 

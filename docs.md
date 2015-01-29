@@ -7,7 +7,7 @@
   unless the program-wide option `-G` is supplied, which forces them to be
   interpreted as regular names.
 
-    caught new version playername dexsize [altnames ...]
+    caught new version playername dexsize [synonyms ...]
 
     caught games [-Js] [game ...]
     # Output is in YAML just to make some attempt at parseability
@@ -28,4 +28,4 @@
   new `game_names` entry is instead named `version:player:N`, where `N` is the
   number of `game_names` entries of the form `/^version:player(:.*)?$/` already
   present.  Neither `version` nor `player` is added to `game_names` unless it
-  explicitly appears in the "altnames" list for the game creation command.
+  explicitly appears in the "synonyms" list for the game creation command.

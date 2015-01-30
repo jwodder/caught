@@ -1,8 +1,5 @@
 - Document everything!
 - `CaughtDB`:
-    - Add a method for getting a list of all Pokémon and their statuses for a
-      given game
-    - Add a method for getting a range of Pokémon & statuses for a given game?
     - Add a `getPokemonByDexno` method
     - `newGame` should take an argument to control whether a
       `version:playername[:N]` synonym is created

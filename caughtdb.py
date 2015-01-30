@@ -124,6 +124,28 @@ CREATE TABLE caught (gameID INTEGER NOT NULL REFERENCES games(gameID),
             return self.UNCAUGHT
         return status
 
+    def getStatusRange(self, game, start=None, end=None):  # inclusive range
+        if not isinstance(game, Game):
+            game = self.getGameByID(game)
+        if start is None and end is None:
+            start, end = 1, game.dexsize
+        elif end is None:
+            start, end = 1, start
+        elif start is None:
+            ### Should this be an error instead?
+            start = 1
+        start = int(start)
+        end = min(int(end), game.dexsize)
+        return [(Pokemon(dexno, name, self.get_pokemon_names(dexno)), status)
+                for dexno, name, status in self.db.execute('''
+SELECT dexno, pokemon.name, IFNULL(caught.status, ?)
+FROM pokemon
+    LEFT JOIN (SELECT dexno, status FROM caught WHERE gameID = ?) AS caught
+USING (dexno)
+WHERE ? <= dexno AND dexno <= ?
+ORDER BY dexno ASC
+''', (self.UNCAUGHT, int(game), start, end))]
+
     def setStatus(self, game, poke, status):
         status = int(status)
         if status not in (self.UNCAUGHT, self.CAUGHT, self.OWNED):

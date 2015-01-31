@@ -50,8 +50,7 @@
     - Give `new` an option to ignore synonyms that already exist
     - Give `new` an option for setting the game ID?
 
-- Add functionality (accessed through caught.py or another program?) for
-  extending/updating the Pokédex
+- Add functionality for extending/updating the Pokédex
 - Should CaughtDB and/or caught.py raise an error when trying to set the status
   for a Pokémon that is beyond a game's dexsize?
 - Add support for keeping track of Unown forms

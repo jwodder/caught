@@ -138,13 +138,13 @@ CREATE TABLE caught (gameID INTEGER NOT NULL REFERENCES games(gameID),
         end = min(int(end), game.dexsize)
         return [(Pokemon(dexno, name, self.get_pokemon_names(dexno)), status)
                 for dexno, name, status in self.db.execute('''
-SELECT dexno, pokemon.name, IFNULL(caught.status, ?)
-FROM pokemon
-    LEFT JOIN (SELECT dexno, status FROM caught WHERE gameID = ?) AS caught
-USING (dexno)
-WHERE ? <= dexno AND dexno <= ?
-ORDER BY dexno ASC
-''', (self.UNCAUGHT, int(game), start, end))]
+                    SELECT dexno, pokemon.name, IFNULL(caught.status, ?)
+                    FROM pokemon LEFT JOIN (SELECT dexno, status FROM caught
+                                            WHERE gameID = ?) AS caught
+                    USING (dexno)
+                    WHERE ? <= dexno AND dexno <= ?
+                    ORDER BY dexno ASC
+                    ''', (self.UNCAUGHT, int(game), start, end))]
 
     def setStatus(self, game, poke, status):
         status = int(status)
@@ -295,7 +295,25 @@ class Game(namedtuple('Game', 'gameID version player_name dexsize synonyms')):
 
 class Pokemon(namedtuple('Pokemon', 'dexno name synonyms')):
     __slots__ = ()
+
     def __int__(self): return self.dexno
+
+    @classmethod
+    def fromTSVFile(cls, pokedex):
+        with open(pokedex) as dex:
+            for (lineno, line) in enumerate(dex, start=1):
+                line = line.strip()
+                if line == '' or line[0] == '#':
+                    continue
+                fields = line.split('\t')
+                if len(fields) < 2:
+                    raise MalformedFileError(pokedex, lineno, 'too few fields')
+                try:
+                    dexno = int(fields[0])
+                except ValueError:
+                    raise MalformedFileError(pokedex, lineno,
+                                             fields[0] + ': not a number')
+                yield cls(dexno, fields[1], fields[2:])
 
 
 class CaughtDBError(Exception): pass

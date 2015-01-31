@@ -6,7 +6,8 @@ import sys
 import caughtdb
 from   caughtdb import CaughtDB, Game, Pokemon
 
-default_dbfile = os.environ["HOME"] + '/.caughtdb'
+### TODO: Make this non-Unix-friendly:
+default_dbfile = os.environ.get("HOME", ".") + '/.caughtdb'
 
 ### TODO: Improve these:
 statusLabels = {CaughtDB.UNCAUGHT: '  ',

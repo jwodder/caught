@@ -55,26 +55,17 @@ CREATE TABLE caught (gameID INTEGER NOT NULL REFERENCES games(gameID),
     def close(self):
         self.db.close()
 
-    def create(self, pokedex):
+    def create(self, pokedex=None):
         self.db.executescript(self.SCHEMA)
-        with open(pokedex) as dex:
-            for (lineno, line) in enumerate(dex, start=1):
-                line = line.strip()
-                if line == '' or line[0] == '#':
-                    continue
-                fields = line.split('\t')
-                if len(fields) < 2:
-                    raise MalformedFileError(pokedex, lineno, 'too few fields')
-                try:
-                    dexno = int(fields[0])
-                except ValueError:
-                    raise MalformedFileError(pokedex, lineno,
-                                             fields[0] + ': not a number')
+        if pokedex is not None:
+            for poke in Pokemon.fromTSVFile(pokedex):
                 self.db.execute('INSERT OR ROLLBACK INTO pokemon (dexno, name)'
-                                ' VALUES (?,?)', (dexno, fields[1]))
+                                ' VALUES (?,?)', (poke.dexno, poke.name))
                 self.db.executemany('INSERT OR ROLLBACK INTO pokemon_names'
                                     ' (dexno, name) VALUES (?,?)',
-                                    ((dexno, name.lower()) for name in fields))
+                                    ((dexno, name.lower())
+                                     for name in (str(poke.dexno), poke.name)
+                                                 + fields))
 
     def getPokemon(self, name):
         """Returns the ``Pokemon`` object for the Pokémon with the given name.
@@ -313,7 +304,7 @@ class Pokemon(namedtuple('Pokemon', 'dexno name synonyms')):
                 except ValueError:
                     raise MalformedFileError(pokedex, lineno,
                                              fields[0] + ': not a number')
-                yield cls(dexno, fields[1], fields[2:])
+                yield cls(dexno, fields[1], tuple(fields[2:]))
 
 
 class CaughtDBError(Exception): pass

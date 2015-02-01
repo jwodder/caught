@@ -14,6 +14,19 @@ statusLabels = {CaughtDB.UNCAUGHT: '  ',
                 CaughtDB.CAUGHT:   '✓ ',
                 CaughtDB.OWNED:    '✓✓'}
 
+def getPokemon(db, args, poke, warn_on_fail=False):
+    try:
+        pokedata = db.getPokemon(poke)
+    except caughtdb.NoSuchPokemonError as e:
+        if warn_on_fail:
+            ### Should this use the `warnings` module?
+            sys.stderr.write(sys.argv[0] + ': ' + str(e) + "\n")
+            return None
+        else:
+            raise e
+    else:
+        return pokedata
+
 def getGame(db, args, game, warn_on_fail=False):
     try:
         if game.isdigit() and not args.force_gname:
@@ -92,40 +105,37 @@ try:
         elif args.cmd == 'add':
             game = getGame(db, args, args.game)
             for poke in args.pokemon:
-                pokedata = db.getPokemon(poke)
+                pokedata = getPokemon(db, args, poke)
                 db.markCaught(game, pokedata)
 
         elif args.cmd == 'own':
             game = getGame(db, args, args.game)
             for poke in args.pokemon:
-                pokedata = db.getPokemon(poke)
+                pokedata = getPokemon(db, args, poke)
                 db.markOwned(game, pokedata)
 
         elif args.cmd == 'release':
             game = getGame(db, args, args.game)
             for poke in args.pokemon:
-                pokedata = db.getPokemon(poke)
+                pokedata = getPokemon(db, args, poke)
                 db.markRelease(game, pokedata)
 
         elif args.cmd == 'uncatch':
             game = getGame(db, args, args.game)
             for poke in args.pokemon:
-                pokedata = db.getPokemon(poke)
+                pokedata = getPokemon(db, args, poke)
                 db.markUncaught(game, pokedata)
 
         elif args.cmd == 'get':
             game = getGame(db, args, args.game)
             if args.pokemon:
                 for poke in args.pokemon:
-                    try:
-                        pokedata = db.getPokemon(poke)
-                    except caughtdb.NoSuchPokemonError as e:
-                        ### Should this use the `warnings` module?
-                        sys.stderr.write(sys.argv[0] + ': ' + str(e) + "\n")
-                    else:
-                        status = db.getStatus(game, pokedata)
-                        print '%s %3d. %s' % (statusLabels[status],
-                                              pokedata.dexno, pokedata.name)
+                    pokedata = getPokemon(db, args, poke, warn_on_fail=True)
+                    if pokedata is None:
+                        continue
+                    status = db.getStatus(game, pokedata)
+                    print '%s %3d. %s' % (statusLabels[status], pokedata.dexno,
+                                          pokedata.name)
             else:
                 for pokedata in db.allPokemon(maxno=game.dexsize):
                     status = db.getStatus(game, pokedata)

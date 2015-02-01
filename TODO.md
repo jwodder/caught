@@ -42,8 +42,6 @@
           backup
     - Fill in 'help', 'metavar', and other help message-related values for
       argparse
-    - Give all of the commands that take a list of Pokémon an `-F file` option
-      for reading the list from a file instead
     - Add a command for showing all information about a specific Pokémon?
     - Give `new` an option to turn off creation of the `version:playername[:N]`
       synonym
@@ -77,3 +75,4 @@
   zero or more synonyms, with 'version' and 'player_name' being (optional?)
   extra fields that are not used in naming and simply describe the game further
   (and can be searched, e.g., getting all Diamond games?)
+- Add a "seen" status

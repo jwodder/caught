@@ -14,6 +14,22 @@ statusLabels = {CaughtDB.UNCAUGHT: '  ',
                 CaughtDB.CAUGHT:   '✓ ',
                 CaughtDB.OWNED:    '✓✓'}
 
+def listPokemon(db, args, warn_on_fail=False):
+    if args.file is not None:
+        for fp in args.file:
+            with fp:
+                for line in fp:
+                    line = line.strip()
+                    if line == '' or line[0] == '#':
+                        continue
+                    pokedata = getPokemon(db, args, line, warn_on_fail)
+                    if pokedata is not None:
+                        yield pokedata
+    for poke in args.pokemon:
+        pokedata = getPokemon(db, args, poke, warn_on_fail)
+        if pokedata is not None:
+            yield pokedata
+
 def getPokemon(db, args, poke, warn_on_fail=False):
     try:
         pokedata = db.getPokemon(poke)
@@ -61,10 +77,12 @@ subparser_delete.add_argument('games', nargs='+')
 
 for name in ('add', 'own', 'release', 'uncatch'):
     sp = subparser.add_parser(name)
+    sp.add_argument('-F', '--file', action='append', type=argparse.FileType('r'))
     sp.add_argument('game')
-    sp.add_argument('pokemon', nargs='+')
+    sp.add_argument('pokemon', nargs='*')
 
 subparser_get = subparser.add_parser('get')
+subparser_get.add_argument('-F', '--file', action='append', type=argparse.FileType('r'))
 subparser_get.add_argument('game')
 subparser_get.add_argument('pokemon', nargs='*')
 
@@ -104,35 +122,28 @@ try:
 
         elif args.cmd == 'add':
             game = getGame(db, args, args.game)
-            for poke in args.pokemon:
-                pokedata = getPokemon(db, args, poke)
+            for pokedata in listPokemon(db, args):
                 db.markCaught(game, pokedata)
 
         elif args.cmd == 'own':
             game = getGame(db, args, args.game)
-            for poke in args.pokemon:
-                pokedata = getPokemon(db, args, poke)
+            for pokedata in listPokemon(db, args):
                 db.markOwned(game, pokedata)
 
         elif args.cmd == 'release':
             game = getGame(db, args, args.game)
-            for poke in args.pokemon:
-                pokedata = getPokemon(db, args, poke)
+            for pokedata in listPokemon(db, args):
                 db.markRelease(game, pokedata)
 
         elif args.cmd == 'uncatch':
             game = getGame(db, args, args.game)
-            for poke in args.pokemon:
-                pokedata = getPokemon(db, args, poke)
+            for pokedata in listPokemon(db, args):
                 db.markUncaught(game, pokedata)
 
         elif args.cmd == 'get':
             game = getGame(db, args, args.game)
-            if args.pokemon:
-                for poke in args.pokemon:
-                    pokedata = getPokemon(db, args, poke, warn_on_fail=True)
-                    if pokedata is None:
-                        continue
+            if args.file or args.pokemon:
+                for pokedata in listPokemon(db, args, warn_on_fail=True):
                     status = db.getStatus(game, pokedata)
                     print '%s %3d. %s' % (statusLabels[status], pokedata.dexno,
                                           pokedata.name)

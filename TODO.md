@@ -53,6 +53,7 @@
   for a Pokémon that is beyond a game's dexsize?
 - Add support for keeping track of Unown forms
 - Add support for regional Pokédexes
+- Add a "seen" status
 - Add commands & methods for adding & removing game synonyms
 - Merge `mkcaughtdb.py` into `caught.py` (and then merge `caughtdb.py` back
   into `caught.py`) ?
@@ -75,4 +76,3 @@
   zero or more synonyms, with 'version' and 'player_name' being (optional?)
   extra fields that are not used in naming and simply describe the game further
   (and can be searched, e.g., getting all Diamond games?)
-- Add a "seen" status

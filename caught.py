@@ -65,6 +65,9 @@ parser.add_argument('-G', dest='force_gname', action='store_true')
 
 subparser = parser.add_subparsers(title='command', dest='cmd')
 
+subparser_create = subparser.add_parser('create')
+subparser_create.add_argument('pokedex')
+
 subparser_new = subparser.add_parser('new')
 subparser_new.add_argument('version')
 subparser_new.add_argument('playername')
@@ -96,7 +99,10 @@ args = parser.parse_args()
 try:
     with CaughtDB(args.dbfile) as db:
 
-        if args.cmd == 'new':
+        if args.cmd == 'create':
+            db.create(args.pokedex)
+
+        elif args.cmd == 'new':
             gameID = db.newGame(args.version, args.playername, args.dexsize,
                                 args.synonyms)
             print gameID.asYAML()

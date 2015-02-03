@@ -5,9 +5,6 @@
       `version:playername[:N]` synonym is created
     - `newGame` should take an argument to control whether duplicate synonyms
       should be ignored instead of causing an error
-    - Add a `getGameByName` method that (unlike `getGame`) only searches the
-      `game_names` table (and add an option to `caught.py` for making use of
-      it)
     - Should `create` ensure the dexnos are all positive & contiguous?
     - Try to make `create` rollback the CREATE TABLE statements (not just the
       INSERT statements) when an INSERT fails
@@ -47,6 +44,7 @@
       synonym
     - Give `new` an option to ignore synonyms that already exist
     - Give `new` an option for setting the game ID?
+    - Rename `new` to "`newgame`"?
 
 - Add functionality for extending/updating the Pokédex
 - Should CaughtDB and/or caught.py raise an error when trying to set the status
@@ -55,14 +53,10 @@
 - Add support for regional Pokédexes
 - Add a "seen" status
 - Add commands & methods for adding & removing game synonyms
-- Merge `mkcaughtdb.py` into `caught.py` (and then merge `caughtdb.py` back
-  into `caught.py`) ?
-- Make the `dbfile` argument to `mkcaughtdb.py` optional
+- Merge `caughtdb.py` back into `caught.py`?
 - Rethink whether each Pokémon should have its dexno as an synonym
 - Add a table (and a TSV file) listing possible versions and their
   corresponding dexsizes (and, eventually, regional dexes)
-- Generalize the code into being able to track completion of sets
-  (corresponding to games) of arbitrary checklists
 - Should the first game to have a `version:player` name also have
   `version:player:1`?  If so, should `version:player` be automatically
   reassigned to the newest game with those parameters whenever such a game is
@@ -71,8 +65,13 @@
   entry for that name, it is used.  Otherwise, all games whose `version` and/or
   `player_name` equals the supplied string are queried; if there is exactly
   one, it is used, otherwise it is an error.
+    - Add a `getGameByName` method that (unlike `getGame`) only searches the
+      `game_names` table (and add an option to `caught.py` for making use of
+      it)
 - Instead of the version+player_name+synonyms system, each game should have a
   single canonical name (which is used in the headings of tabular output) and
   zero or more synonyms, with 'version' and 'player_name' being (optional?)
   extra fields that are not used in naming and simply describe the game further
   (and can be searched, e.g., getting all Diamond games?)
+- Generalize the code into being able to track completion of sets
+  (corresponding to games) of arbitrary checklists

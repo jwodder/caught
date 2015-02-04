@@ -42,7 +42,6 @@
     - Add a command for showing all information about a specific Pokémon?
     - Give `new` an option to turn off creation of the `version:playername[:N]`
       synonym
-    - Give `new` an option to ignore synonyms that already exist
     - Give `new` an option for setting the game ID?
     - Rename `new` to "`newgame`"?
 

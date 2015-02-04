@@ -69,6 +69,7 @@ subparser_create = subparser.add_parser('create')
 subparser_create.add_argument('pokedex')
 
 subparser_new = subparser.add_parser('new')
+subparser_new.add_argument('-i', '--ignore-dups', action='store_true')
 subparser_new.add_argument('version')
 subparser_new.add_argument('playername')
 subparser_new.add_argument('dexsize', type=int)
@@ -104,7 +105,7 @@ try:
 
         elif args.cmd == 'new':
             gameID = db.newGame(args.version, args.playername, args.dexsize,
-                                args.synonyms)
+                                args.synonyms, ignore_dups=args.ignore_dups)
             print gameID.asYAML()
 
         elif args.cmd == 'delete':

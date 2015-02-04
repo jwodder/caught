@@ -7,7 +7,9 @@
     - Try to make `create` rollback the CREATE TABLE statements (not just the
       INSERT statements) when an INSERT fails
     - Let `create` use either a TSV file or JSON file as the Pokédex
-    - Should more SQL calls be given custom types for their exceptions?
+    - Should more SQL calls be given custom types for their exceptions?  (At
+      the very least, those that can propagate to the top of caught.py during
+      normal execution should be more end-user friendly)
 
 - `caught.py`:
     - Intended command-line usages to implement:

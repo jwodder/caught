@@ -7,7 +7,10 @@
   unless the program-wide option `-G` is supplied, which forces them to be
   interpreted as regular names.
 
+    caught create pokedex
+
     caught new [-i | --ignore-dups] version playername dexsize [synonyms ...]
+    caught delete [-f | --force] game ...
 
     caught games [-J | --json] [-s | --stats] [game ...]
     # Output is in YAML just to make some attempt at parseability

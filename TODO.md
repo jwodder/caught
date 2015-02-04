@@ -3,11 +3,11 @@
     - Add a `getPokemonByDexno` method
     - `newGame` should take an argument to control whether a
       `version:playername[:N]` synonym is created
-    - `newGame` should take an argument to control whether duplicate synonyms
-      should be ignored instead of causing an error
     - Should `create` ensure the dexnos are all positive & contiguous?
     - Try to make `create` rollback the CREATE TABLE statements (not just the
       INSERT statements) when an INSERT fails
+    - Let `create` use either a TSV file or JSON file as the Pokédex
+    - Should more SQL calls be given custom types for their exceptions?
 
 - `caught.py`:
     - Intended command-line usages to implement:
@@ -26,7 +26,7 @@
         caught getall [--games game1,game2]  # List all Pokémon in all games in a table
         caught getall [--games game1,game2] pokemon|dexno|dexno_range ...
 
-        caught update tsvfile  # add more Pokémon
+        caught update tsvfile|jsonfile  # add more Pokémon
 
         caught export [-o file] [game ...]
         # Exports all games by default (as JSON?)
@@ -53,14 +53,10 @@
 - Add support for regional Pokédexes
 - Add a "seen" status
 - Add commands & methods for adding & removing game synonyms
-- Merge `caughtdb.py` back into `caught.py`?
+- Merge `caughtdb.py` back into `caught.py`
 - Rethink whether each Pokémon should have its dexno as an synonym
 - Add a table (and a TSV file) listing possible versions and their
   corresponding dexsizes (and, eventually, regional dexes)
-- Should the first game to have a `version:player` name also have
-  `version:player:1`?  If so, should `version:player` be automatically
-  reassigned to the newest game with those parameters whenever such a game is
-  created?
 - TO IMPLEMENT: When looking up a game by name, if there exists a `game_names`
   entry for that name, it is used.  Otherwise, all games whose `version` and/or
   `player_name` equals the supplied string are queried; if there is exactly

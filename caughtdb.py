@@ -193,18 +193,27 @@ CREATE TABLE caught (gameID INTEGER NOT NULL REFERENCES games(gameID),
         return [Pokemon(dexno, name, self.get_pokemon_names(dexno))
                 for dexno, name in results]
 
-    def newGame(self, version, player_name, dexsize, synonyms):
+    def newGame(self, version, player_name, dexsize, synonyms,
+                ignore_dups=False):
         cursor = self.db.cursor()
         cursor.execute('INSERT INTO games (version, player_name, dexsize)'
                        ' VALUES (?,?,?)', (version, player_name, int(dexsize)))
         gameID = cursor.lastrowid
-        synonyms = tuple(alt.lower() for alt in synonyms)
-        cursor.executemany('INSERT INTO game_names (gameID, name) VALUES (?,?)',
-                           ((gameID, alt) for alt in synonyms))
+        usedSynonyms = ()
+        for syn in synonyms:
+            syn = syn.lower()
+            try:
+                cursor.execute('INSERT INTO game_names (gameID, name)'
+                               ' VALUES (?,?)', (gameID, syn))
+            except sqlite3.Error:
+                if not ignore_dups:
+                    raise
+            else:
+                usedSynonyms += (syn,)
         specialName = None
         colonbase = version.lower() + ':' + player_name.lower()
         if not any(alt == colonbase or alt.startswith(colonbase + ':')
-                   for alt in synonyms):
+                   for alt in usedSynonyms):
             try:
                 cursor.execute('INSERT INTO game_names (gameID, name) VALUES'
                                ' (?,?)', (gameID, colonbase))
@@ -226,8 +235,8 @@ CREATE TABLE caught (gameID INTEGER NOT NULL REFERENCES games(gameID),
                 colonbase += ':' + str(n+1)
                 cursor.execute('INSERT INTO game_names (gameID, name) VALUES'
                                ' (?,?)', (gameID, colonbase))
-            synonyms += (colonbase,)
-        return Game(gameID, version, player_name, int(dexsize), synonyms)
+            usedSynonyms += (colonbase,)
+        return Game(gameID, version, player_name, int(dexsize), usedSynonyms)
 
     def deleteGame(self, game):
         self.db.execute('DELETE FROM caught WHERE gameID=?', (int(game),))

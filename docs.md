@@ -9,17 +9,17 @@
 
     caught new [-i | --ignore-dups] version playername dexsize [synonyms ...]
 
-    caught games [-Js] [game ...]
+    caught games [-J | --json] [-s | --stats] [game ...]
     # Output is in YAML just to make some attempt at parseability
     # `-J` causes output to be JSON instead
     # `-s` causes dex progress to be printed
 
-    caught add game pokemon ...       # uncaught → caught
-    caught own game pokemon ...       # * → owned
-    caught release game pokemon ...   # owned → caught
-    caught uncaught game pokemon ...  # * → uncaught
+    caught add      game [-F | --file file] pokemon ...  # uncaught → caught
+    caught own      game [-F | --file file] pokemon ...  # * → owned
+    caught release  game [-F | --file file] pokemon ...  # owned → caught
+    caught uncaught game [-F | --file file] pokemon ...  # * → uncaught
 
-    caught get game [pokemon ...]
+    caught get      game [-F | --file file] [pokemon ...]
 
 ### On game names
 

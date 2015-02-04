@@ -76,7 +76,7 @@ subparser_new.add_argument('dexsize', type=int)
 subparser_new.add_argument('synonyms', nargs='*')
 
 subparser_delete = subparser.add_parser('delete')
-subparser_delete.add_argument('-f', dest='force', action='store_true')
+subparser_delete.add_argument('-f', '--force', action='store_true')
 subparser_delete.add_argument('games', nargs='+')
 
 for name in ('add', 'own', 'release', 'uncatch'):
@@ -91,8 +91,8 @@ subparser_get.add_argument('game')
 subparser_get.add_argument('pokemon', nargs='*')
 
 subparser_games = subparser.add_parser('games')
-subparser_games.add_argument('-J', dest='as_json', action='store_true')
-subparser_games.add_argument('-s', dest='stats', action='store_true')
+subparser_games.add_argument('-J', '--json', dest='json', action='store_true')
+subparser_games.add_argument('-s', '--stats', action='store_true')
 subparser_games.add_argument('games', nargs='*')
 
 args = parser.parse_args()
@@ -172,7 +172,7 @@ try:
                                       for g in args.games])
             else:
                 games = db.allGames()
-            if args.as_json:
+            if args.json:
                 jsonses = []
                 for game in games:
                     jsonses.append(game.asJSON(*gameArgs(game)))

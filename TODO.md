@@ -44,6 +44,7 @@
       synonym
     - Give `new` an option for setting the game ID?
     - Rename `new` to "`newgame`"?
+    - Make warning and error messages look less alike
 
 - Add functionality for extending/updating the Pokédex
 - Should CaughtDB and/or caught.py raise an error when trying to set the status

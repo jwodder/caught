@@ -15,16 +15,15 @@ statusLabels = {CaughtDB.UNCAUGHT: '  ',
                 CaughtDB.OWNED:    '✓✓'}
 
 def listPokemon(db, args, warn_on_fail=False):
-    if args.file is not None:
-        for fp in args.file:
-            with fp:
-                for line in fp:
-                    line = line.strip()
-                    if line == '' or line[0] == '#':
-                        continue
-                    pokedata = getPokemon(db, args, line, warn_on_fail)
-                    if pokedata is not None:
-                        yield pokedata
+    for fp in args.file:
+        with fp:
+            for line in fp:
+                line = line.strip()
+                if line == '' or line[0] == '#':
+                    continue
+                pokedata = getPokemon(db, args, line, warn_on_fail)
+                if pokedata is not None:
+                    yield pokedata
     for poke in args.pokemon:
         pokedata = getPokemon(db, args, poke, warn_on_fail)
         if pokedata is not None:
@@ -81,12 +80,12 @@ subparser_delete.add_argument('games', nargs='+')
 
 for name in ('add', 'own', 'release', 'uncatch'):
     sp = subparser.add_parser(name)
-    sp.add_argument('-F', '--file', action='append', type=argparse.FileType('r'))
+    sp.add_argument('-F', '--file', action='append', default=[], type=argparse.FileType('r'))
     sp.add_argument('game')
     sp.add_argument('pokemon', nargs='*')
 
 subparser_get = subparser.add_parser('get')
-subparser_get.add_argument('-F', '--file', action='append', type=argparse.FileType('r'))
+subparser_get.add_argument('-F', '--file', action='append', default=[], type=argparse.FileType('r'))
 subparser_get.add_argument('game')
 subparser_get.add_argument('pokemon', nargs='*')
 

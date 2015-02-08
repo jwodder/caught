@@ -14,7 +14,8 @@
     - Add a method for testing whether `create` has been run on the DB
     - `newGame` should probably take a `Game` as its argument
     - The `synonyms` attributes of Game and Pokemon objects should not include
-      the canonical name.
+      the canonical name (or, for Pokemon, the dexno)
+    - Should `getGame` fall back to looking up by gameID if no name is found?
 
 - `caught.py`:
     - Intended command-line usages to implement:

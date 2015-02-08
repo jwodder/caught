@@ -64,9 +64,9 @@ CREATE TABLE caught (gameID INTEGER NOT NULL REFERENCES games(gameID),
                                 ' VALUES (?,?)', (poke.dexno, poke.name))
                 self.db.executemany('INSERT OR ROLLBACK INTO pokemon_names'
                                     ' (dexno, name) VALUES (?,?)',
-                                    ((dexno, name.lower())
+                                    ((poke.dexno, name.lower())
                                      for name in (str(poke.dexno), poke.name)
-                                                 + fields))
+                                                 + poke.synonyms))
 
     def getPokemon(self, name):
         """Returns the ``Pokemon`` object for the Pokémon with the given name.
@@ -203,7 +203,7 @@ CREATE TABLE caught (gameID INTEGER NOT NULL REFERENCES games(gameID),
         if cursor.fetchmany():
             raise DuplicateNameError('Game', name)
         cursor.execute('INSERT INTO games (name, version, player_name, dexsize)'
-                       ' VALUES (?,?,?)', (name, version, player_name, dexsize))
+                       ' VALUES (?,?,?,?)', (name, version, player_name, dexsize))
         gameID = cursor.lastrowid
         usedSynonyms = set()
         for syn in [name] + list(synonyms):

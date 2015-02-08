@@ -2,8 +2,6 @@
 - Make the code pass pylint
 - `CaughtDB`:
     - Add a `getPokemonByDexno` method
-    - `newGame` should take an argument to control whether a
-      `version:playername[:N]` synonym is created
     - Should `create` ensure the dexnos are all positive & contiguous?
     - Try to make `create` rollback the CREATE TABLE statements (not just the
       INSERT statements) when an INSERT fails
@@ -16,6 +14,12 @@
     - The `synonyms` attributes of Game and Pokemon objects should not include
       the canonical name (or, for Pokemon, the dexno)
     - Should `getGame` fall back to looking up by gameID if no name is found?
+    - When `getGame` is called, if there exists a `game_names` entry for that
+      name, that should be returned.  Otherwise, all games whose `version`
+      and/or `player_name` fields equal the supplied string are queried; if
+      there is exactly one, it is returned, otherwise it is an error.
+        - Add a `getGameByName` method that only searches the `game_names`
+          table (and add an option to `caught.py` for making use of it)
 
 - `caught.py`:
     - Intended command-line usages to implement:
@@ -48,8 +52,6 @@
     - Fill in 'help', 'metavar', and other help message-related values for
       argparse
     - Add a command for showing all information about a specific Pokémon?
-    - Give `new` an option to turn off creation of the `version:playername[:N]`
-      synonym
     - Give `new` an option for setting the game ID?
     - Rename `new` to "`newgame`"?
     - Make warning and error messages look less alike
@@ -63,21 +65,13 @@
 - Add support for regional Pokédexes
 - Add a "seen" status
 - Add commands & methods for adding & removing game synonyms
+- Add functionality for changing a game's canonical name, version, and player
+  name (and dexsize?)
 - Merge `caughtdb.py` back into `caught.py`
 - Rethink whether each Pokémon should have its dexno as an synonym
 - Add a table (and a TSV file) listing possible versions and their
   corresponding dexsizes (and, eventually, regional dexes)
-- TO IMPLEMENT: When looking up a game by name, if there exists a `game_names`
-  entry for that name, it is used.  Otherwise, all games whose `version` and/or
-  `player_name` equals the supplied string are queried; if there is exactly
-  one, it is used, otherwise it is an error.
-    - Add a `getGameByName` method that (unlike `getGame`) only searches the
-      `game_names` table (and add an option to `caught.py` for making use of
-      it)
-- Instead of the version+player_name+synonyms system, each game should have a
-  single canonical name (which is used in the headings of tabular output) and
-  zero or more synonyms, with 'version' and 'player_name' being (optional?)
-  extra fields that are not used in naming and simply describe the game further
-  (and can be searched, e.g., getting all Diamond games?)
+- Add functionality for getting games by version & player name
+
 - Generalize the code into being able to track completion of sets
   (corresponding to games) of arbitrary checklists

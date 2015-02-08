@@ -16,8 +16,9 @@ CREATE TABLE pokemon_names (dexno INTEGER NOT NULL REFERENCES pokemon(dexno),
                             CHECK (name = lower(name)));
 
 CREATE TABLE games (gameID      INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
-                    version     TEXT    NOT NULL,
-                    player_name TEXT    NOT NULL,
+                    name        TEXT    NOT NULL UNIQUE,
+                    version     TEXT,
+                    player_name TEXT,
                     dexsize     INTEGER NOT NULL);
 
 CREATE TABLE game_names (gameID INTEGER NOT NULL REFERENCES games(gameID),
@@ -96,13 +97,13 @@ CREATE TABLE caught (gameID INTEGER NOT NULL REFERENCES games(gameID),
     def getGameByID(self, gameID):
         gameID = int(gameID)
         cursor = self.db.cursor()
-        cursor.execute('SELECT version, player_name, dexsize FROM games'
+        cursor.execute('SELECT name, version, player_name, dexsize FROM games'
                        ' WHERE gameID=?', (gameID,))
         try:
-            version, player_name, dexsize = cursor.fetchone()
+            name, version, player_name, dexsize = cursor.fetchone()
         except TypeError:
             raise NoSuchGameError(gameID=gameID)
-        return Game(gameID, version, player_name, dexsize,
+        return Game(gameID, name, version, player_name, dexsize,
                     self.get_game_names(gameID))
 
     def getStatus(self, game, poke):
@@ -117,6 +118,7 @@ CREATE TABLE caught (gameID INTEGER NOT NULL REFERENCES games(gameID),
 
     def getStatusRange(self, game, start=None, end=None):  # inclusive range
         if not isinstance(game, Game):
+            ### Rethink this:
             game = self.getGameByID(game)
         if start is None and end is None:
             start, end = 1, game.dexsize
@@ -177,7 +179,7 @@ CREATE TABLE caught (gameID INTEGER NOT NULL REFERENCES games(gameID),
 
     def allGames(self):
         return [Game(*(row + (self.get_game_names(row[0]),)))
-                for row in self.db.execute('SELECT gameID, version,'
+                for row in self.db.execute('SELECT gameID, name, version,'
                                            ' player_name, dexsize FROM games'
                                            ' ORDER BY gameID ASC')]
 
@@ -192,50 +194,33 @@ CREATE TABLE caught (gameID INTEGER NOT NULL REFERENCES games(gameID),
         return [Pokemon(dexno, name, self.get_pokemon_names(dexno))
                 for dexno, name in results]
 
-    def newGame(self, version, player_name, dexsize, synonyms,
+    def newGame(self, name, version, player_name, dexsize, synonyms,
                 ignore_dups=False):
+        dexsize = int(dexsize)
         cursor = self.db.cursor()
-        cursor.execute('INSERT INTO games (version, player_name, dexsize)'
-                       ' VALUES (?,?,?)', (version, player_name, int(dexsize)))
+        cursor.execute('SELECT gameID FROM game_names WHERE name=?',
+                       (name.lower(),))
+        if cursor.fetchmany():
+            raise DuplicateNameError('Game', name)
+        cursor.execute('INSERT INTO games (name, version, player_name, dexsize)'
+                       ' VALUES (?,?,?)', (name, version, player_name, dexsize))
         gameID = cursor.lastrowid
-        usedSynonyms = ()
-        for syn in synonyms:
+        usedSynonyms = set()
+        for syn in [name] + list(synonyms):
             syn = syn.lower()
+            if syn in usedSynonyms:
+                continue
             try:
                 cursor.execute('INSERT INTO game_names (gameID, name)'
                                ' VALUES (?,?)', (gameID, syn))
             except sqlite3.Error:
                 if not ignore_dups:
-                    raise
+                    raise DuplicateNameError('Game', syn)
             else:
-                usedSynonyms += (syn,)
-        specialName = None
-        colonbase = version.lower() + ':' + player_name.lower()
-        if not any(alt == colonbase or alt.startswith(colonbase + ':')
-                   for alt in usedSynonyms):
-            try:
-                cursor.execute('INSERT INTO game_names (gameID, name) VALUES'
-                               ' (?,?)', (gameID, colonbase))
-            except Exception:
-                escapebase = colonbase.replace('\\', r'\\') \
-                                      .replace('%', r'\%') \
-                                      .replace('_', r'\_')
-                n = 1
-                for name, in cursor.execute('SELECT name FROM game_names'
-                                            ' WHERE name LIKE ? ESCAPE ?',
-                                            (escapebase + ':%', '\\')):
-                    name = name[len(colonbase)+1:]
-                    try:
-                        m = int(name)
-                    except ValueError:
-                        pass
-                    else:
-                        n = max(n,m)
-                colonbase += ':' + str(n+1)
-                cursor.execute('INSERT INTO game_names (gameID, name) VALUES'
-                               ' (?,?)', (gameID, colonbase))
-            usedSynonyms += (colonbase,)
-        return Game(gameID, version, player_name, int(dexsize), usedSynonyms)
+                usedSynonyms.add(syn)
+        usedSynonyms.remove(name.lower())
+        return Game(gameID, name, version, player_name, dexsize,
+                    tuple(sorted(usedSynonyms)))
 
     def deleteGame(self, game):
         self.db.execute('DELETE FROM caught WHERE gameID=?', (int(game),))
@@ -253,29 +238,35 @@ CREATE TABLE caught (gameID INTEGER NOT NULL REFERENCES games(gameID),
                                    (gameID,)), ())
 
 
-class Game(namedtuple('Game', 'gameID version player_name dexsize synonyms')):
+class Game(namedtuple('Game', 'gameID name version player_name dexsize synonyms')):
+# `version` and `player_name` are the only attributes that should ever be
+# `None`.
     __slots__ = ()
 
     def __int__(self): return self.gameID
 
     def asYAML(self, caught_or_owned=None, owned=None):
-        s = '''
+        version = 'null' if self.version is None else self.version
+        player_name = 'null' if self.player_name is None else self.player_name
+        yml = '''
 - game ID: %d
+  name: %s
   version: %s
   player name: %s
   dexsize: %d
   synonyms:
 %s
-'''.strip() % (self.gameID, self.version, self.player_name, self.dexsize, ''.join('    - ' + a + '\n' for a in self.synonyms))
+'''.strip() % (self.gameID, self.name, version, player_name, self.dexsize, ''.join('    - ' + syn + '\n' for syn in self.synonyms))
         if caught_or_owned is not None:
-            s += '  caught or owned: ' + str(caught_or_owned) + '\n'
+            yml += '  caught or owned: ' + str(caught_or_owned) + '\n'
         if owned is not None:
-            s += '  owned: ' + str(owned) + '\n'
-        return s
+            yml += '  owned: ' + str(owned) + '\n'
+        return yml
 
     def asDict(self, caught_or_owned=None, owned=None):
         d = {
                 "game ID": self.gameID,
+                "name": self.name,
                 "version": self.version,
                 "player name": self.player_name,
                 "dexsize": self.dexsize,
@@ -353,3 +344,12 @@ class MalformedFileError(CaughtDBError, ValueError):
 
     def __str__(self):
         return '%s: line %d: %s' % (self.filename, self.lineno, self.reason)
+
+
+class DuplicateNameError(CaughtDBError, ValueError):
+    def __init__(self, objType, name):
+        self.objType = objType
+        self.name = name
+
+    def __str__(self):
+        return 'Duplicate %s name: %r' % (self.objType, self.name)

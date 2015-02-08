@@ -13,6 +13,8 @@
       normal execution should be more end-user friendly)
     - Add a method for testing whether `create` has been run on the DB
     - `newGame` should probably take a `Game` as its argument
+    - The `synonyms` attributes of Game and Pokemon objects should not include
+      the canonical name.
 
 - `caught.py`:
     - Intended command-line usages to implement:

@@ -6,7 +6,7 @@ import sys
 import caughtdb
 from   caughtdb import CaughtDB, Game, Pokemon
 
-### TODO: Make this non-Unix-friendly:
+### TODO: Make this non-Unix friendly:
 default_dbfile = os.environ.get("HOME", ".") + '/.caughtdb'
 
 ### TODO: Improve these:

@@ -151,10 +151,9 @@ CREATE TABLE caught (gameID INTEGER NOT NULL REFERENCES games(gameID),
                             status))
 
     def markCaught(self, game, poke):  # uncaught → caught
-        if self.getStatus(game, poke) == self.UNCAUGHT:
-            self.db.execute('INSERT OR REPLACE INTO caught (gameID, dexno,'
-                            ' status) VALUES (?, ?, ?)', (int(game), int(poke),
-                            self.CAUGHT))
+        self.db.execute('INSERT OR IGNORE INTO caught (gameID, dexno, status)'
+                        ' VALUES (?, ?, ?)', (int(game), int(poke),
+                        self.CAUGHT))
 
     def markOwned(self, game, poke):  # * → owned
         self.db.execute('INSERT OR REPLACE INTO caught (gameID, dexno, status)'

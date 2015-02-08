@@ -1,4 +1,5 @@
 - Document everything!
+- Make the code pass pylint
 - `CaughtDB`:
     - Add a `getPokemonByDexno` method
     - `newGame` should take an argument to control whether a
@@ -10,6 +11,8 @@
     - Should more SQL calls be given custom types for their exceptions?  (At
       the very least, those that can propagate to the top of caught.py during
       normal execution should be more end-user friendly)
+    - Add a method for testing whether `create` has been run on the DB
+    - `newGame` should probably take a `Game` as its argument
 
 - `caught.py`:
     - Intended command-line usages to implement:
@@ -47,6 +50,8 @@
     - Give `new` an option for setting the game ID?
     - Rename `new` to "`newgame`"?
     - Make warning and error messages look less alike
+    - Give the `add` family a "verbose" option to make them print out each
+      specified Pokémon's previous status and whether or not a change was made
 
 - Add functionality for extending/updating the Pokédex
 - Should CaughtDB and/or caught.py raise an error when trying to set the status

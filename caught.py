@@ -1,6 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 import argparse
+import csv
 import os
 import sys
 import caughtdb
@@ -13,6 +14,8 @@ default_dbfile = os.environ.get("HOME", ".") + '/.caughtdb'
 statusLabels = {CaughtDB.UNCAUGHT: '  ',
                 CaughtDB.CAUGHT:   '✓ ',
                 CaughtDB.OWNED:    '✓✓'}
+
+POKEMON_NAME_LEN = 12
 
 def listPokemon(db, args, warn_on_fail=False):
     for fp in args.file:
@@ -58,6 +61,10 @@ def getGame(db, args, game, warn_on_fail=False):
     else:
         return gamedata
 
+def GameCSV(arg):
+    ### TODO: Expand/customize (and add appropriate error handling?)
+    return next(csv.reader([arg]))
+
 parser = argparse.ArgumentParser()
 parser.add_argument('-D', '--dbfile', default=default_dbfile)
 parser.add_argument('-G', dest='force_gname', action='store_true')
@@ -89,6 +96,11 @@ subparser_get = subparser.add_parser('get')
 subparser_get.add_argument('-F', '--file', action='append', default=[], type=argparse.FileType('r'))
 subparser_get.add_argument('game')
 subparser_get.add_argument('pokemon', nargs='*')
+
+subparser_getall = subparser.add_parser('getall')
+subparser_getall.add_argument('--games', type=GameCSV)
+subparser_getall.add_argument('-F', '--file', action='append', default=[], type=argparse.FileType('r'))
+subparser_getall.add_argument('pokemon', nargs='*')
 
 subparser_games = subparser.add_parser('games')
 subparser_games.add_argument('-J', '--json', dest='json', action='store_true')
@@ -151,15 +163,36 @@ try:
         elif args.cmd == 'get':
             game = getGame(db, args, args.game)
             if args.file or args.pokemon:
-                for pokedata in listPokemon(db, args, warn_on_fail=True):
-                    status = db.getStatus(game, pokedata)
-                    print '%s %3d. %s' % (statusLabels[status], pokedata.dexno,
-                                          pokedata.name)
+                pokemon = listPokemon(db, args, warn_on_fail=True)
             else:
-                for pokedata in db.allPokemon(maxno=game.dexsize):
-                    status = db.getStatus(game, pokedata)
-                    print '%s %3d. %s' % (statusLabels[status], pokedata.dexno,
-                                          pokedata.name)
+                pokemon = db.allPokemon(maxno=game.dexsize)
+            for pokedata in pokemon:
+                status = db.getStatus(game, pokedata)
+                print '%s %3d. %s' % (statusLabels[status], pokedata.dexno,
+                                      pokedata.name)
+
+        elif args.cmd == 'getall':
+            if args.games:
+                games = [getGame(db, args, g) for g in args.games]
+            else:
+                games = db.allGames()
+            ### TODO: vv
+            print ' ' * (POKEMON_NAME_LEN+5) + '|' + '|'.join(g.name
+                                                              for g in games)
+            if args.file or args.pokemon:
+                pokemon = listPokemon(db, args, warn_on_fail=True)
+            else:
+                pokemon = db.allPokemon(maxno=max(g.dexsize for g in games))
+            for pokedata in pokemon:
+                sys.stdout.write('%3d. %-*s' % (pokedata.dexno,
+                                                POKEMON_NAME_LEN,
+                                                pokedata.name))
+                for g in games:
+                    status = db.getStatus(g, pokedata)
+                    ### TODO: vv
+                    sys.stdout.write('|' + statusLabels[status]
+                                         + ' ' * (len(g.name)-2))
+                print
 
         elif args.cmd == 'games':
             if args.stats:

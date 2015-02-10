@@ -13,6 +13,7 @@
                [--version version]
                [--player-name | --player player-name]
                name dexsize [synonyms ...]
+
     caught delete [-f | --force] game ...
 
     caught games [-J | --json] [-s | --stats] [game ...]
@@ -26,3 +27,5 @@
     caught uncaught game [-F | --file file] pokemon ...  # * → uncaught
 
     caught get      game [-F | --file file] [pokemon ...]
+
+    caught getall [--games game1,game2]  [-F | --file file] [pokemon ...]

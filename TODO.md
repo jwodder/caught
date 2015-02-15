@@ -7,7 +7,7 @@
       INSERT statements) when an INSERT fails
     - Let `create` use either a TSV file or JSON file as the Pokédex
     - Should more SQL calls be given custom types for their exceptions?  (At
-      the very least, those that can propagate to the top of caught.py during
+      the very least, those that can propagate to the top of `caught.py` during
       normal execution should be more end-user friendly)
     - Add a method for testing whether `create` has been run on the DB
     - `newGame` should probably take a `Game` as its argument
@@ -20,6 +20,12 @@
       there is exactly one, it is returned, otherwise it is an error.
         - Add a `getGameByName` method that only searches the `game_names`
           table (and add an option to `caught.py` for making use of it)
+    - The following methods need to be better about rolling back changes if an
+      exception is thrown in the middle of execution:
+        - `create`
+        - `newGame`
+    - Add a method and/or DB constraint for ensuring there are no `UNCAUGHT`
+      entries in `caught`?
 
 - `caught.py`:
     - Intended command-line usages to implement:

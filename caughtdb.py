@@ -139,6 +139,31 @@ CREATE TABLE caught (gameID INTEGER NOT NULL REFERENCES games(gameID),
                     ORDER BY dexno ASC
                     ''', (self.UNCAUGHT, int(game), start, end))]
 
+    def getByStatus(self, game, status, maxno=None):
+        status = int(status)
+        if status == self.UNCAUGHT:
+            return [Pokemon(dexno, name, self.get_pokemon_names(dexno))
+                    for dexno, name in self.db.execute('''
+                        SELECT dexno, pokemon.name
+                        FROM pokemon LEFT JOIN (SELECT dexno, status FROM caught
+                                                WHERE gameID = ?)
+                        USING (dexno)
+                        WHERE status IS NULL AND (? OR dexno <= ?)
+                        ORDER BY dexno ASC
+                        ''', (self.UNCAUGHT, int(game), int(dexno is None),
+                              int(dexno)))]
+        else:
+            return [Pokemon(dexno, name, self.get_pokemon_names(dexno))
+                    for dexno, name in self.db.execute('''
+                        SELECT dexno, pokemon.name
+                        FROM pokemon JOIN (SELECT dexno, status FROM caught
+                                           WHERE gameID = ?)
+                        USING (dexno)
+                        WHERE status = ? AND (? OR dexno <= ?)
+                        ORDER BY dexno ASC
+                        ''', (self.UNCAUGHT, int(game), status,
+                              int(dexno is None), int(dexno)))]
+
     def setStatus(self, game, poke, status):
         status = int(status)
         if status not in (self.UNCAUGHT, self.CAUGHT, self.OWNED):
@@ -245,6 +270,8 @@ class Game(namedtuple('Game', 'gameID name version player_name dexsize synonyms'
 
     def __int__(self): return self.gameID
 
+    def __str__(self): return self.name
+
     def asYAML(self, caught_or_owned=None, owned=None):
         version = 'null' if self.version is None else self.version
         player_name = 'null' if self.player_name is None else self.player_name
@@ -256,7 +283,8 @@ class Game(namedtuple('Game', 'gameID name version player_name dexsize synonyms'
   dexsize: %d
   synonyms:
 %s
-'''.strip() % (self.gameID, self.name, version, player_name, self.dexsize, ''.join('    - ' + syn + '\n' for syn in self.synonyms))
+'''.strip() % (self.gameID, self.name, version, player_name, self.dexsize,
+               ''.join('    - ' + syn + '\n' for syn in self.synonyms))
         if caught_or_owned is not None:
             yml += '  caught or owned: ' + str(caught_or_owned) + '\n'
         if owned is not None:
@@ -287,6 +315,8 @@ class Pokemon(namedtuple('Pokemon', 'dexno name synonyms')):
     __slots__ = ()
 
     def __int__(self): return self.dexno
+
+    def __str__(self): return self.name
 
     @classmethod
     def fromTSVFile(cls, pokedex):

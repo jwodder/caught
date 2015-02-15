@@ -33,10 +33,6 @@
         # - status1/status2 - all Pokémon with either status
         # - status1/status2/status3 - all Pokémon (just for completeness's sake)
 
-        caught get game [pokemon|dexno|dexno_range ...]
-
-        caught getall [--games game1,game2] pokemon|dexno|dexno_range ...
-
         caught update tsvfile|jsonfile  # add more Pokémon
 
         caught export [-o file] [game ...]
@@ -57,10 +53,13 @@
     - Give the `add` family a "verbose" option to make them print out each
       specified Pokémon's previous status and whether or not a change was made
     - Let `getall` take multiple `--games` switches (and/or multiple `--game`
-      switches?)
+      switches, allowing it to subsume `get`?)
     - Improve the output of `getall`
         - Handle padding with non-ASCII characters
     - Rename the `-G` option
+    - Let the `add` family, `get`, and `getall` take Pokémon specifications as
+      species names, dexnos, or ranges (given as two species and/or dexnos
+      separated by a hyphen)
 
 - Add functionality for extending/updating the Pokédex
 - Should CaughtDB and/or caught.py raise an error when trying to set the status

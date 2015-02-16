@@ -21,23 +21,16 @@
         - Add a `getGameByName` method that only searches the `game_names`
           table (and add an option to `caught.py` for making use of it)
     - The following methods need to be better about rolling back changes if an
-      exception is thrown in the middle of execution:
+      exception is raised in the middle of execution:
         - `create`
         - `newGame`
     - Add a method and/or DB constraint for ensuring there are no `UNCAUGHT`
-      entries in `caught`?
+      entries in `caught`
+    - Override `Game.__new__` and `Pokemon.__new__` so that the `synonyms`
+      fields are always sorted tuples of stripped(?) lowercase strings
 
 - `caught.py`:
     - Intended command-line usages to implement:
-
-        caught list status game [pokemon|dexno|dexno_range ...]
-        # Statuses:
-        # - uncaught
-        # - caught
-        # - caught+ - equivalent to `caught/owned`
-        # - owned
-        # - status1/status2 - all Pokémon with either status
-        # - status1/status2/status3 - all Pokémon (just for completeness's sake)
 
         caught update tsvfile|jsonfile  # add more Pokémon
 
@@ -62,10 +55,19 @@
       switches, allowing it to subsume `get`?)
     - Improve the output of `getall`
         - Handle padding with non-ASCII characters
+        - Add a special status label for Pokémon not in a given game (apply to
+          `get` as well)
     - Rename the `-G` option
     - Let the `add` family, `get`, and `getall` take Pokémon specifications as
       species names, dexnos, or ranges (given as two species and/or dexnos
       separated by a hyphen)
+    - `new`: Make the `dexsize` argument optional (and default to the number of
+      Pokémon known) ?
+    - Give `new` an option for automatically making the version and player name
+      synonyms of the game
+    - Give `get`/`getall` JSON output modes
+    - Add a command for displaying a table of statistics for each game?
+    - Should `list` take an optional set of Pokémon to restrict itself to?
 
 - Add functionality for extending/updating the Pokédex
 - Should CaughtDB and/or caught.py raise an error when trying to set the status

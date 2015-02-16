@@ -293,12 +293,12 @@ class Game(namedtuple('Game', 'gameID name version player_name dexsize synonyms'
 
     def asDict(self, caught_or_owned=None, owned=None):
         d = {
-                "game ID": self.gameID,
-                "name": self.name,
-                "version": self.version,
+                "game ID":     self.gameID,
+                "name":        self.name,
+                "version":     self.version,
                 "player name": self.player_name,
-                "dexsize": self.dexsize,
-                "synonyms": list(self.synonyms)
+                "dexsize":     self.dexsize,
+                "synonyms":    list(self.synonyms)
             }
         if caught_or_owned is not None:
             d["caught or owned"] = caught_or_owned

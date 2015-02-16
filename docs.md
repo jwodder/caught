@@ -21,11 +21,21 @@
     # `-J` causes output to be JSON instead
     # `-s` causes dex progress to be printed
 
-    caught add      game [-F | --file file] pokemon ...  # uncaught → caught
-    caught own      game [-F | --file file] pokemon ...  # * → owned
-    caught release  game [-F | --file file] pokemon ...  # owned → caught
-    caught uncaught game [-F | --file file] pokemon ...  # * → uncaught
+    caught add      [-F | --file file] game pokemon ...  # uncaught → caught
+    caught own      [-F | --file file] game pokemon ...  # * → owned
+    caught release  [-F | --file file] game pokemon ...  # owned → caught
+    caught uncaught [-F | --file file] game pokemon ...  # * → uncaught
 
-    caught get      game [-F | --file file] [pokemon ...]
+    caught get      [-F | --file file] game [pokemon ...]
 
     caught getall [--games game1,game2]  [-F | --file file] [pokemon ...]
+
+    caught list status game
+    # Statuses:
+    # - uncaught
+    # - caught
+    # - caught+ - equivalent to `caught/owned`
+    # - owned
+    # - unowned - equivalent to `uncaught/caught`
+    # - status1/status2 - all Pokémon with either status
+    # - status1/status2/status3 - all Pokémon (just for completeness's sake)

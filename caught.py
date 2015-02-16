@@ -15,6 +15,12 @@ statusLabels = {CaughtDB.UNCAUGHT: '  ',
                 CaughtDB.CAUGHT:   '✓ ',
                 CaughtDB.OWNED:    '✓✓'}
 
+statuses = {"uncaught": set([CaughtDB.UNCAUGHT]),
+            "caught":   set([CaughtDB.CAUGHT]),
+            "caught+":  set([CaughtDB.CAUGHT, CaughtDB.OWNED]),
+            "owned":    set([CaughtDB.OWNED]),
+            "unowned":  set([CaughtDB.UNCAUGHT, CaughtDB.CAUGHT])}
+
 POKEMON_NAME_LEN = 12
 
 def listPokemon(db, args, warn_on_fail=False):
@@ -104,6 +110,10 @@ def main():
     subparser_getall.add_argument('-F', '--file', action='append', default=[],
                                   type=argparse.FileType('r'))
     subparser_getall.add_argument('pokemon', nargs='*')
+
+    subparser_list = subparser.add_parser('list')
+    subparser_list.add_argument('status')
+    subparser_list.add_argument('game')
 
     subparser_games = subparser.add_parser('games')
     subparser_games.add_argument('-J', '--json', action='store_true')
@@ -196,6 +206,22 @@ def main():
                         sys.stdout.write('|' + statusLabels[status]
                                              + ' ' * (len(g.name)-2))
                     print
+
+            elif args.cmd == 'list':
+                game = getGame(db, args, args.game)
+                toList = set()
+                for status in args.status.split('/'):
+                    status = status.strip().lower()
+                    if status in statuses:
+                        toList |= statuses[status]
+                    else:
+                        raise SystemExit(sys.argv[0] + ': ' + status
+                                                     + ': invalid status')
+                pokemon = set()
+                for status in toList:
+                    pokemon.update(db.getByStatus(game, status, game.dexsize))
+                for poke in sorted(pokemon):
+                    print str(poke)
 
             elif args.cmd == 'games':
                 if args.stats:

@@ -150,8 +150,7 @@ CREATE TABLE caught (gameID INTEGER NOT NULL REFERENCES games(gameID),
                         USING (dexno)
                         WHERE status IS NULL AND (? OR dexno <= ?)
                         ORDER BY dexno ASC
-                        ''', (self.UNCAUGHT, int(game), int(dexno is None),
-                              int(dexno)))]
+                        ''', (int(game), int(maxno is None), int(maxno)))]
         else:
             return [Pokemon(dexno, name, self.get_pokemon_names(dexno))
                     for dexno, name in self.db.execute('''
@@ -161,8 +160,8 @@ CREATE TABLE caught (gameID INTEGER NOT NULL REFERENCES games(gameID),
                         USING (dexno)
                         WHERE status = ? AND (? OR dexno <= ?)
                         ORDER BY dexno ASC
-                        ''', (self.UNCAUGHT, int(game), status,
-                              int(dexno is None), int(dexno)))]
+                        ''', (int(game), status, int(maxno is None),
+                              int(maxno)))]
 
     def setStatus(self, game, poke, status):
         status = int(status)

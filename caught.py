@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 import argparse
 import csv
+import heapq
 import os
 import sys
 import caughtdb
@@ -217,10 +218,12 @@ def main():
                     else:
                         raise SystemExit(sys.argv[0] + ': ' + status
                                                      + ': invalid status')
-                pokemon = set()
+                pokemon = []
                 for status in toList:
-                    pokemon.update(db.getByStatus(game, status, game.dexsize))
-                for poke in sorted(pokemon):
+                    pokemon = heapq.merge(pokemon,
+                                          db.getByStatus(game, status,
+                                                         game.dexsize))
+                for poke in pokemon:
                     print str(poke)
 
             elif args.cmd == 'games':

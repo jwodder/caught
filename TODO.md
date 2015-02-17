@@ -30,7 +30,7 @@
       fields are always sorted tuples of stripped(?) lowercase strings
 
 - `caught.py`:
-    - Intended command-line usages to implement:
+    - Commands to implement:
 
         caught update tsvfile|jsonfile  # add more Pokémon
 

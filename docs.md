@@ -10,6 +10,7 @@
     caught create pokedex
 
     caught new [-i | --ignore-dups]
+               [-q | --quiet]
                [--version version]
                [--player-name | --player player-name]
                name dexsize [synonyms ...]

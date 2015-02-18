@@ -83,6 +83,7 @@ def main():
 
     subparser_new = subparser.add_parser('new')
     subparser_new.add_argument('-i', '--ignore-dups', action='store_true')
+    subparser_new.add_argument('-q', '--quiet', action='store_true')
     subparser_new.add_argument('--version')
     subparser_new.add_argument('--player-name', '--player')
     subparser_new.add_argument('name')
@@ -133,7 +134,8 @@ def main():
                 gameID = db.newGame(args.name, args.version, args.player_name,
                                     args.dexsize, args.synonyms,
                                     ignore_dups=args.ignore_dups)
-                print gameID.asYAML()
+                if not args.quiet:
+                    print gameID.asYAML()
 
             elif args.cmd == 'delete':
                 for g in args.games:

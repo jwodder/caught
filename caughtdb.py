@@ -78,8 +78,16 @@ CREATE TABLE caught (gameID INTEGER NOT NULL REFERENCES games(gameID),
             dexno, = cursor.fetchone()
         except TypeError:
             raise NoSuchPokemonError(name)
+        return self.getPokemonByDexno(dexno)
+
+    def getPokemonByDexno(self, dexno):
+        dexno = int(dexno)
+        cursor = self.db.cursor()
         cursor.execute('SELECT name FROM pokemon WHERE dexno=?', (dexno,))
-        name, = cursor.fetchone()
+        try:
+            name, = cursor.fetchone()
+        except TypeError:
+            raise NoSuchPokemonError(dexno=gameID)
         return Pokemon(dexno, name, self.get_pokemon_names(dexno))
 
     def getGame(self, name):

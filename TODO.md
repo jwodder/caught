@@ -1,7 +1,6 @@
 - Document everything!
 - Make the code pass pylint
 - `CaughtDB`:
-    - Add a `getPokemonByDexno` method
     - Should `create` ensure the dexnos are all positive & contiguous?
     - Try to make `create` rollback the CREATE TABLE statements (not just the
       INSERT statements) when an INSERT fails
@@ -83,6 +82,8 @@
 - Add a table (and a TSV file) listing possible versions and their
   corresponding dexsizes (and, eventually, regional dexes)
 - Add functionality for getting games by version & player name
+- Give statuses their own class with methods for showing them as words or check
+  marks
 
 - Generalize the code into being able to track completion of sets
   (corresponding to games) of arbitrary checklists

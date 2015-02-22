@@ -68,19 +68,19 @@ CREATE TABLE caught (gameID INTEGER NOT NULL REFERENCES games(gameID),
                                      for name in (str(poke.dexno), poke.name)
                                                  + poke.synonyms))
 
-    def newGame(self, name, version, player_name, dexsize, synonyms,
-                ignore_dups=False):
-        dexsize = int(dexsize)
+    def newGame(self, game, ignore_dups=False):
+        # `game.gameID` is ignored.
         cursor = self.db.cursor()
         cursor.execute('SELECT gameID FROM game_names WHERE name=?',
-                       (name.lower(),))
+                       (game.name.lower(),))
         if cursor.fetchmany():
-            raise DuplicateNameError('Game', name)
+            raise DuplicateNameError('Game', game.name)
         cursor.execute('INSERT INTO games (name, version, player_name, dexsize)'
-                       ' VALUES (?,?,?,?)', (name, version, player_name, dexsize))
+                       ' VALUES (?,?,?,?)', (game.name, game.version,
+                                             game.player_name, game.dexsize))
         gameID = cursor.lastrowid
         usedSynonyms = set()
-        for syn in [name] + list(synonyms):
+        for syn in [game.name] + list(game.synonyms):
             syn = syn.lower()
             if syn in usedSynonyms:
                 continue
@@ -92,9 +92,9 @@ CREATE TABLE caught (gameID INTEGER NOT NULL REFERENCES games(gameID),
                     raise DuplicateNameError('Game', syn)
             else:
                 usedSynonyms.add(syn)
-        usedSynonyms.remove(name.lower())
-        return Game(gameID, name, version, player_name, dexsize,
-                    tuple(sorted(usedSynonyms)))
+        usedSynonyms.remove(game.name.lower())
+        return Game(gameID, game.name, game.version, game.player_name,
+                    game.dexsize, tuple(sorted(usedSynonyms)))
 
     def deleteGame(self, game):
         self.db.execute('DELETE FROM caught WHERE gameID=?', (int(game),))

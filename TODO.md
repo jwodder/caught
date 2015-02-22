@@ -9,7 +9,6 @@
       the very least, those that can propagate to the top of `caught.py` during
       normal execution should be more end-user friendly)
     - Add a method for testing whether `create` has been run on the DB
-    - `newGame` should probably take a `Game` as its argument
     - The `synonyms` attributes of Game and Pokemon objects should not include
       the canonical name (or, for Pokemon, the dexno)
     - Should `getGame` fall back to looking up by gameID if no name is found?
@@ -25,8 +24,6 @@
         - `newGame`
     - Add a method and/or DB constraint for ensuring there are no `UNCAUGHT`
       entries in `caught`
-    - Override `Game.__new__` and `Pokemon.__new__` so that the `synonyms`
-      fields are always sorted tuples of stripped(?) lowercase strings
 
 - `caught.py`:
     - Commands to implement:
@@ -45,8 +42,6 @@
     - Fill in 'help', 'metavar', and other help message-related values for
       argparse
     - Add a command for showing all information about a specific Pokémon?
-    - Give `new` an option for setting the game ID?
-    - Rename `new` to "`newgame`"?
     - Make warning and error messages look less alike
     - Give the `add` family a "verbose" option to make them print out each
       specified Pokémon's previous status and whether or not a change was made
@@ -67,6 +62,7 @@
     - Give `get`/`getall` JSON output modes
     - Add a command for displaying a table of statistics for each game?
     - Should `list` take an optional set of Pokémon to restrict itself to?
+    - Add a tabular output mode for `games`?
 
 - Add functionality for extending/updating the Pokédex
 - Should CaughtDB and/or caught.py raise an error when trying to set the status
@@ -84,6 +80,9 @@
 - Add functionality for getting games by version & player name
 - Give statuses their own class with methods for showing them as words or check
   marks
+- Override `Game.__new__` and `Pokemon.__new__` so that the `synonyms` fields
+  are always sorted tuples of stripped(?) lowercase strings (and so that
+  `dexsize` is always an integer?)
 
 - Generalize the code into being able to track completion of sets
   (corresponding to games) of arbitrary checklists

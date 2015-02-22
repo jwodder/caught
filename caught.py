@@ -131,8 +131,9 @@ def main():
                 db.create(args.pokedex)
 
             elif args.cmd == 'new':
-                gameID = db.newGame(args.name, args.version, args.player_name,
-                                    args.dexsize, args.synonyms,
+                gameID = db.newGame(Game(None, args.name, args.version,
+                                         args.player_name, args.dexsize,
+                                         args.synonyms),
                                     ignore_dups=args.ignore_dups)
                 if not args.quiet:
                     print gameID.asYAML()

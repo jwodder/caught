@@ -68,6 +68,39 @@ CREATE TABLE caught (gameID INTEGER NOT NULL REFERENCES games(gameID),
                                      for name in (str(poke.dexno), poke.name)
                                                  + poke.synonyms))
 
+    def newGame(self, name, version, player_name, dexsize, synonyms,
+                ignore_dups=False):
+        dexsize = int(dexsize)
+        cursor = self.db.cursor()
+        cursor.execute('SELECT gameID FROM game_names WHERE name=?',
+                       (name.lower(),))
+        if cursor.fetchmany():
+            raise DuplicateNameError('Game', name)
+        cursor.execute('INSERT INTO games (name, version, player_name, dexsize)'
+                       ' VALUES (?,?,?,?)', (name, version, player_name, dexsize))
+        gameID = cursor.lastrowid
+        usedSynonyms = set()
+        for syn in [name] + list(synonyms):
+            syn = syn.lower()
+            if syn in usedSynonyms:
+                continue
+            try:
+                cursor.execute('INSERT INTO game_names (gameID, name)'
+                               ' VALUES (?,?)', (gameID, syn))
+            except sqlite3.Error:
+                if not ignore_dups:
+                    raise DuplicateNameError('Game', syn)
+            else:
+                usedSynonyms.add(syn)
+        usedSynonyms.remove(name.lower())
+        return Game(gameID, name, version, player_name, dexsize,
+                    tuple(sorted(usedSynonyms)))
+
+    def deleteGame(self, game):
+        self.db.execute('DELETE FROM caught WHERE gameID=?', (int(game),))
+        self.db.execute('DELETE FROM game_names WHERE gameID=?', (int(game),))
+        self.db.execute('DELETE FROM games WHERE gameID=?', (int(game),))
+
     def getPokemon(self, name):
         """Returns the ``Pokemon`` object for the Pokémon with the given name.
            Raises a `NoSuchPokemonError`` if there is no such Pokémon."""
@@ -89,6 +122,17 @@ CREATE TABLE caught (gameID INTEGER NOT NULL REFERENCES games(gameID),
         except TypeError:
             raise NoSuchPokemonError(dexno=gameID)
         return Pokemon(dexno, name, self.get_pokemon_names(dexno))
+
+    def allPokemon(self, maxno=None):
+        if maxno is None:
+            results = self.db.execute('SELECT dexno, name FROM pokemon'
+                                      ' ORDER BY dexno ASC')
+        else:
+            results = self.db.execute('SELECT dexno, name FROM pokemon '
+                                      'WHERE dexno <= ? ORDER BY dexno ASC',
+                                      (maxno,))
+        return [Pokemon(dexno, name, self.get_pokemon_names(dexno))
+                for dexno, name in results]
 
     def getGame(self, name):
         """Returns the ``Game`` object for the game with the given name.
@@ -113,6 +157,19 @@ CREATE TABLE caught (gameID INTEGER NOT NULL REFERENCES games(gameID),
             raise NoSuchGameError(gameID=gameID)
         return Game(gameID, name, version, player_name, dexsize,
                     self.get_game_names(gameID))
+
+    def getGameCount(self, game):
+        caught, = self.db.execute('SELECT count(*) FROM caught WHERE gameID = ?'
+                                  ' AND status = ?', (int(game), self.CAUGHT))
+        owned,  = self.db.execute('SELECT count(*) FROM caught WHERE gameID = ?'
+                                  ' AND status = ?', (int(game), self.OWNED))
+        return (caught[0], owned[0])
+
+    def allGames(self):
+        return [Game(*(row + (self.get_game_names(row[0]),)))
+                for row in self.db.execute('SELECT gameID, name, version,'
+                                           ' player_name, dexsize FROM games'
+                                           ' ORDER BY gameID ASC')]
 
     def getStatus(self, game, poke):
         cursor = self.db.cursor()
@@ -201,63 +258,6 @@ CREATE TABLE caught (gameID INTEGER NOT NULL REFERENCES games(gameID),
     def markUncaught(self, game, poke):  # * → uncaught
         self.db.execute('DELETE FROM caught WHERE gameID=? AND dexno=?',
                         (int(game), int(poke)))
-
-    def getGameCount(self, game):
-        caught, = self.db.execute('SELECT count(*) FROM caught WHERE gameID = ?'
-                                  ' AND status = ?', (int(game), self.CAUGHT))
-        owned,  = self.db.execute('SELECT count(*) FROM caught WHERE gameID = ?'
-                                  ' AND status = ?', (int(game), self.OWNED))
-        return (caught[0], owned[0])
-
-    def allGames(self):
-        return [Game(*(row + (self.get_game_names(row[0]),)))
-                for row in self.db.execute('SELECT gameID, name, version,'
-                                           ' player_name, dexsize FROM games'
-                                           ' ORDER BY gameID ASC')]
-
-    def allPokemon(self, maxno=None):
-        if maxno is None:
-            results = self.db.execute('SELECT dexno, name FROM pokemon'
-                                      ' ORDER BY dexno ASC')
-        else:
-            results = self.db.execute('SELECT dexno, name FROM pokemon '
-                                      'WHERE dexno <= ? ORDER BY dexno ASC',
-                                      (maxno,))
-        return [Pokemon(dexno, name, self.get_pokemon_names(dexno))
-                for dexno, name in results]
-
-    def newGame(self, name, version, player_name, dexsize, synonyms,
-                ignore_dups=False):
-        dexsize = int(dexsize)
-        cursor = self.db.cursor()
-        cursor.execute('SELECT gameID FROM game_names WHERE name=?',
-                       (name.lower(),))
-        if cursor.fetchmany():
-            raise DuplicateNameError('Game', name)
-        cursor.execute('INSERT INTO games (name, version, player_name, dexsize)'
-                       ' VALUES (?,?,?,?)', (name, version, player_name, dexsize))
-        gameID = cursor.lastrowid
-        usedSynonyms = set()
-        for syn in [name] + list(synonyms):
-            syn = syn.lower()
-            if syn in usedSynonyms:
-                continue
-            try:
-                cursor.execute('INSERT INTO game_names (gameID, name)'
-                               ' VALUES (?,?)', (gameID, syn))
-            except sqlite3.Error:
-                if not ignore_dups:
-                    raise DuplicateNameError('Game', syn)
-            else:
-                usedSynonyms.add(syn)
-        usedSynonyms.remove(name.lower())
-        return Game(gameID, name, version, player_name, dexsize,
-                    tuple(sorted(usedSynonyms)))
-
-    def deleteGame(self, game):
-        self.db.execute('DELETE FROM caught WHERE gameID=?', (int(game),))
-        self.db.execute('DELETE FROM game_names WHERE gameID=?', (int(game),))
-        self.db.execute('DELETE FROM games WHERE gameID=?', (int(game),))
 
     def get_pokemon_names(self, dexno):  # internal function
         return sum(self.db.execute('SELECT name FROM pokemon_names'

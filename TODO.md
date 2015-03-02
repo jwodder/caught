@@ -42,7 +42,6 @@
     - Fill in 'help', 'metavar', and other help message-related values for
       argparse
     - Add a command for showing all information about a specific Pokémon?
-    - Make warning and error messages look less alike
     - Give the `add` family a "verbose" option to make them print out each
       specified Pokémon's previous status and whether or not a change was made
     - Let `getall` take multiple `--games` switches (and/or multiple `--game`
@@ -76,8 +75,8 @@
 - Merge `caughtdb.py` back into `caught.py`
 - Rethink whether each Pokémon should have its dexno as an synonym
 - Add a table (and a TSV file) listing possible versions and their
-  corresponding dexsizes (and, eventually, regional dexes)
-- Add functionality for getting games by version & player name
+  corresponding dexsizes (and, eventually, regional dexes and generations)
+- Add functionality for getting games by version & player name (and generation)
 - Give statuses their own class with methods for showing them as words or check
   marks
 - Override `Game.__new__` and `Pokemon.__new__` so that the `synonyms` fields

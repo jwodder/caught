@@ -24,6 +24,10 @@ statuses = {"uncaught": set([CaughtDB.UNCAUGHT]),
 
 POKEMON_NAME_LEN = 12
 
+def warn(s):
+    #sys.stderr.write(sys.argv[0] + ': ' + s + "\n")
+    sys.stderr.write('Warning: ' + s + "\n")
+
 def listPokemon(db, args, warn_on_fail=False):
     for fp in args.file:
         with fp:
@@ -44,7 +48,7 @@ def getPokemon(db, args, poke, warn_on_fail=False):
         pokedata = db.getPokemon(poke)
     except caughtdb.NoSuchPokemonError as e:
         if warn_on_fail:
-            sys.stderr.write(sys.argv[0] + ': ' + str(e) + "\n")
+            warn(str(e))
             return None
         else:
             raise e
@@ -59,7 +63,7 @@ def getGame(db, args, game, warn_on_fail=False):
             gamedata = db.getGame(game)
     except caughtdb.NoSuchGameError as e:
         if warn_on_fail:
-            sys.stderr.write(sys.argv[0] + ': ' + str(e) + "\n")
+            warn(str(e))
             return None
         else:
             raise e

@@ -1,6 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 import argparse
+from   collections import OrderedDict
 import csv
 import heapq
 import os
@@ -10,6 +11,10 @@ from   caughtdb import CaughtDB, Game, Pokemon
 
 ### TODO: Make this non-Unix friendly:
 default_dbfile = os.environ.get("HOME", ".") + '/.caughtdb'
+
+statusNames = {CaughtDB.UNCAUGHT: 'uncaught',
+               CaughtDB.CAUGHT:   'caught',
+               CaughtDB.OWNED:    'owned'}
 
 ### TODO: Improve these:
 statusLabels = {CaughtDB.UNCAUGHT: '  ',
@@ -21,6 +26,11 @@ statuses = {"uncaught": set([CaughtDB.UNCAUGHT]),
             "caught+":  set([CaughtDB.CAUGHT, CaughtDB.OWNED]),
             "owned":    set([CaughtDB.OWNED]),
             "unowned":  set([CaughtDB.UNCAUGHT, CaughtDB.CAUGHT])}
+
+set_cmds = OrderedDict([('add', (CaughtDB.markCaught, (CaughtDB.UNCAUGHT,), CaughtDB.CAUGHT)),
+                        ('own', (CaughtDB.markOwned, (CaughtDB.UNCAUGHT, CaughtDB.CAUGHT), CaughtDB.OWNED)),
+                        ('release', (CaughtDB.markReleased, (CaughtDB.OWNED,), CaughtDB.CAUGHT)),
+                        ('uncatch', (CaughtDB.markUncaught, (CaughtDB.CAUGHT, CaughtDB.OWNED), CaughtDB.UNCAUGHT))])
 
 POKEMON_NAME_LEN = 12
 
@@ -98,10 +108,11 @@ def main():
     subparser_delete.add_argument('-f', '--force', action='store_true')
     subparser_delete.add_argument('games', nargs='+')
 
-    for name in ('add', 'own', 'release', 'uncatch'):
+    for name in set_cmds.iterkeys():
         sp = subparser.add_parser(name)
         sp.add_argument('-F', '--file', action='append', default=[],
                         type=argparse.FileType('r'))
+        sp.add_argument('-v', '--verbose', action='store_true')
         sp.add_argument('game')
         sp.add_argument('pokemon', nargs='*')
 
@@ -161,25 +172,19 @@ def main():
                     if yesdel:
                         db.deleteGame(game)
 
-            elif args.cmd == 'add':
+            elif args.cmd in set_cmds:
+                method, domain, target = set_cmds[args.cmd]
                 game = getGame(db, args, args.game)
                 for pokedata in listPokemon(db, args):
-                    db.markCaught(game, pokedata)
-
-            elif args.cmd == 'own':
-                game = getGame(db, args, args.game)
-                for pokedata in listPokemon(db, args):
-                    db.markOwned(game, pokedata)
-
-            elif args.cmd == 'release':
-                game = getGame(db, args, args.game)
-                for pokedata in listPokemon(db, args):
-                    db.markRelease(game, pokedata)
-
-            elif args.cmd == 'uncatch':
-                game = getGame(db, args, args.game)
-                for pokedata in listPokemon(db, args):
-                    db.markUncaught(game, pokedata)
+                    if args.verbose:
+                        stat = db.getStatus(game, pokedata)
+                        if stat in domain:
+                            method(db, game, pokedata)
+                            print '%3d. %s: %s → %s' % (pokedata.dexno, pokedata.name, statusNames[stat], statusNames[target])
+                        else:
+                            print '%3d. %s: %s' % (pokedata.dexno, pokedata.name, statusNames[stat])
+                    else:
+                        method(db, game, pokedata)
 
             elif args.cmd == 'get':
                 game = getGame(db, args, args.game)

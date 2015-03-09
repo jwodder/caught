@@ -1,5 +1,6 @@
 - Document everything!
 - Make the code pass pylint
+- Enforce UTF-8 throughout the code
 - `CaughtDB`:
     - Should `create` ensure the dexnos are all positive & contiguous?
     - Try to make `create` rollback the CREATE TABLE statements (not just the
@@ -42,8 +43,6 @@
     - Fill in 'help', 'metavar', and other help message-related values for
       argparse
     - Add a command for showing all information about a specific Pokémon?
-    - Give the `add` family a "verbose" option to make them print out each
-      specified Pokémon's previous status and whether or not a change was made
     - Let `getall` take multiple `--games` switches (and/or multiple `--game`
       switches, allowing it to subsume `get`?)
     - Improve the output of `getall`

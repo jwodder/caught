@@ -3,10 +3,6 @@ from   collections import namedtuple
 import sqlite3
 
 class CaughtDB(object):
-    UNCAUGHT = 0
-    CAUGHT   = 1
-    OWNED    = 2
-
     SCHEMA = '''
 CREATE TABLE pokemon (dexno INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
                       name  TEXT    NOT NULL UNIQUE);
@@ -160,9 +156,9 @@ CREATE TABLE caught (gameID INTEGER NOT NULL REFERENCES games(gameID),
 
     def getGameCount(self, game):
         caught, = self.db.execute('SELECT count(*) FROM caught WHERE gameID = ?'
-                                  ' AND status = ?', (int(game), self.CAUGHT))
+                                  ' AND status = ?', (int(game), int(Status.CAUGHT)))
         owned,  = self.db.execute('SELECT count(*) FROM caught WHERE gameID = ?'
-                                  ' AND status = ?', (int(game), self.OWNED))
+                                  ' AND status = ?', (int(game), int(Status.OWNED)))
         return (caught[0], owned[0])
 
     def allGames(self):
@@ -179,7 +175,7 @@ CREATE TABLE caught (gameID INTEGER NOT NULL REFERENCES games(gameID),
             status, = cursor.fetchone()
         except TypeError:
             return self.UNCAUGHT
-        return status
+        return Status.fromValue(status)
 
     def getStatusRange(self, game, start=None, end=None):  # inclusive range
         if not isinstance(game, Game):
@@ -194,7 +190,8 @@ CREATE TABLE caught (gameID INTEGER NOT NULL REFERENCES games(gameID),
             start = 1
         start = int(start)
         end = min(int(end), game.dexsize)
-        return [(Pokemon(dexno, name, self.get_pokemon_names(dexno)), status)
+        return [(Pokemon(dexno, name, self.get_pokemon_names(dexno)),
+                Status.fromValue(status))
                 for dexno, name, status in self.db.execute('''
                     SELECT dexno, pokemon.name, IFNULL(caught.status, ?)
                     FROM pokemon LEFT JOIN (SELECT dexno, status FROM caught
@@ -202,11 +199,11 @@ CREATE TABLE caught (gameID INTEGER NOT NULL REFERENCES games(gameID),
                     USING (dexno)
                     WHERE ? <= dexno AND dexno <= ?
                     ORDER BY dexno ASC
-                    ''', (self.UNCAUGHT, int(game), start, end))]
+                    ''', (int(Status.UNCAUGHT), int(game), start, end))]
 
     def getByStatus(self, game, status, maxno=None):
         status = int(status)
-        if status == self.UNCAUGHT:
+        if status == int(Status.UNCAUGHT):
             return [Pokemon(dexno, name, self.get_pokemon_names(dexno))
                     for dexno, name in self.db.execute('''
                         SELECT dexno, pokemon.name
@@ -230,10 +227,10 @@ CREATE TABLE caught (gameID INTEGER NOT NULL REFERENCES games(gameID),
 
     def setStatus(self, game, poke, status):
         status = int(status)
-        if status not in (self.UNCAUGHT, self.CAUGHT, self.OWNED):
+        if status not in tuple(int(s) for s in Status.STATUSES):
             ### Should this use a custom Exception type?
             raise ValueError('%d: not a valid status' % (status,))
-        if status == self.UNCAUGHT:
+        if status == int(Status.UNCAUGHT):
             self.db.execute('DELETE FROM caught WHERE gameID=? AND dexno=?',
                             (int(game), int(poke)))
         else:
@@ -244,16 +241,17 @@ CREATE TABLE caught (gameID INTEGER NOT NULL REFERENCES games(gameID),
     def markCaught(self, game, poke):  # uncaught → caught
         self.db.execute('INSERT OR IGNORE INTO caught (gameID, dexno, status)'
                         ' VALUES (?, ?, ?)', (int(game), int(poke),
-                        self.CAUGHT))
+                        int(Status.CAUGHT)))
 
     def markOwned(self, game, poke):  # * → owned
         self.db.execute('INSERT OR REPLACE INTO caught (gameID, dexno, status)'
-                        ' VALUES (?, ?, ?)', (int(game), int(poke), self.OWNED))
+                        ' VALUES (?, ?, ?)', (int(game), int(poke),
+                        int(Status.OWNED)))
 
     def markReleased(self, game, poke):  # owned → caught
         self.db.execute('UPDATE caught SET status=? WHERE gameID=? AND dexno=?'
-                        ' AND status=?', (self.CAUGHT, int(game), int(poke),
-                        self.OWNED))
+                        ' AND status=?', (int(Status.CAUGHT), int(game),
+                                          int(poke), int(Status.OWNED)))
 
     def markUncaught(self, game, poke):  # * → uncaught
         self.db.execute('DELETE FROM caught WHERE gameID=? AND dexno=?',
@@ -268,6 +266,26 @@ CREATE TABLE caught (gameID INTEGER NOT NULL REFERENCES games(gameID),
         return sum(self.db.execute('SELECT name FROM game_names'
                                    ' WHERE gameID=? ORDER BY name ASC',
                                    (gameID,)), ())
+
+
+class Status(namedtuple('Status', 'value name checks')):
+    __slots__ = ()
+
+    def __int__(self): return self.value
+
+    def __str__(self): return self.name
+
+    def __repr__(self): return self.__class__.__name__ + '.' + self.name.upper()
+
+    @classmethod
+    def fromValue(cls, val): return cls.STATUSES[val]
+
+### TODO: Improve the checkmarks:
+Status.UNCAUGHT   = Status(0, 'uncaught', '  ')
+Status.CAUGHT     = Status(1, 'caught',   '✓ ')
+Status.OWNED      = Status(2, 'owned',    '✓✓')
+Status.STATUSES   = (Status.UNCAUGHT, Status.CAUGHT, Status.OWNED)
+Status.CHECKS_LEN = 2
 
 
 class Game(namedtuple('Game', 'gameID name version player_name dexsize synonyms')):
@@ -387,6 +405,7 @@ class DuplicateNameError(CaughtDBError, ValueError):
     def __init__(self, objType, name):
         self.objType = objType
         self.name = name
+        super(DuplicateNameError, self).__init__(objType, name)
 
     def __str__(self):
         return 'Duplicate %s name: %r' % (self.objType, self.name)

@@ -76,11 +76,11 @@
 - Add a table (and a TSV file) listing possible versions and their
   corresponding dexsizes (and, eventually, regional dexes and generations)
 - Add functionality for getting games by version & player name (and generation)
-- Give statuses their own class with methods for showing them as words or check
-  marks
-- Override `Game.__new__` and `Pokemon.__new__` so that the `synonyms` fields
-  are always sorted tuples of stripped(?) lowercase strings (and so that
-  `dexsize` is always an integer?)
+- Override `Game.__new__` and `Pokemon.__new__` (and `Status.__new__`?) so that
+  the `synonyms` fields are always sorted tuples of stripped(?) lowercase
+  strings (and so that `dexsize` is always an integer?)
+- Give `Status` (and `Pokemon` and `Game`?) an `__eq__` method that allows for
+  comparison with integers
 
 - Generalize the code into being able to track completion of sets
   (corresponding to games) of arbitrary checklists

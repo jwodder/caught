@@ -22,10 +22,10 @@
     # `-J` causes output to be JSON instead
     # `-s` causes dex progress to be printed
 
-    caught add      [-F | --file file] game pokemon ...  # uncaught → caught
-    caught own      [-F | --file file] game pokemon ...  # * → owned
-    caught release  [-F | --file file] game pokemon ...  # owned → caught
-    caught uncaught [-F | --file file] game pokemon ...  # * → uncaught
+    caught add      [-F | --file file] [-v | --verbose] game pokemon ...  # uncaught → caught
+    caught own      [-F | --file file] [-v | --verbose] game pokemon ...  # * → owned
+    caught release  [-F | --file file] [-v | --verbose] game pokemon ...  # owned → caught
+    caught uncaught [-F | --file file] [-v | --verbose] game pokemon ...  # * → uncaught
 
     caught get      [-F | --file file] game [pokemon ...]
 

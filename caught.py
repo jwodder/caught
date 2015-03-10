@@ -7,30 +7,21 @@ import heapq
 import os
 import sys
 import caughtdb
-from   caughtdb import CaughtDB, Game, Pokemon
+from   caughtdb import CaughtDB, Game, Pokemon, Status
 
 ### TODO: Make this non-Unix friendly:
 default_dbfile = os.environ.get("HOME", ".") + '/.caughtdb'
 
-statusNames = {CaughtDB.UNCAUGHT: 'uncaught',
-               CaughtDB.CAUGHT:   'caught',
-               CaughtDB.OWNED:    'owned'}
+statuses = {"uncaught": set([Status.UNCAUGHT]),
+            "caught":   set([Status.CAUGHT]),
+            "caught+":  set([Status.CAUGHT, Status.OWNED]),
+            "owned":    set([Status.OWNED]),
+            "unowned":  set([Status.UNCAUGHT, Status.CAUGHT])}
 
-### TODO: Improve these:
-statusLabels = {CaughtDB.UNCAUGHT: '  ',
-                CaughtDB.CAUGHT:   '✓ ',
-                CaughtDB.OWNED:    '✓✓'}
-
-statuses = {"uncaught": set([CaughtDB.UNCAUGHT]),
-            "caught":   set([CaughtDB.CAUGHT]),
-            "caught+":  set([CaughtDB.CAUGHT, CaughtDB.OWNED]),
-            "owned":    set([CaughtDB.OWNED]),
-            "unowned":  set([CaughtDB.UNCAUGHT, CaughtDB.CAUGHT])}
-
-set_cmds = OrderedDict([('add', (CaughtDB.markCaught, (CaughtDB.UNCAUGHT,), CaughtDB.CAUGHT)),
-                        ('own', (CaughtDB.markOwned, (CaughtDB.UNCAUGHT, CaughtDB.CAUGHT), CaughtDB.OWNED)),
-                        ('release', (CaughtDB.markReleased, (CaughtDB.OWNED,), CaughtDB.CAUGHT)),
-                        ('uncatch', (CaughtDB.markUncaught, (CaughtDB.CAUGHT, CaughtDB.OWNED), CaughtDB.UNCAUGHT))])
+set_cmds = OrderedDict([('add', (CaughtDB.markCaught, (Status.UNCAUGHT,), Status.CAUGHT)),
+                        ('own', (CaughtDB.markOwned, (Status.UNCAUGHT, Status.CAUGHT), Status.OWNED)),
+                        ('release', (CaughtDB.markReleased, (Status.OWNED,), Status.CAUGHT)),
+                        ('uncatch', (CaughtDB.markUncaught, (Status.CAUGHT, Status.OWNED), Status.UNCAUGHT))])
 
 POKEMON_NAME_LEN = 12
 
@@ -180,9 +171,9 @@ def main():
                         stat = db.getStatus(game, pokedata)
                         if stat in domain:
                             method(db, game, pokedata)
-                            print '%3d. %s: %s → %s' % (pokedata.dexno, pokedata.name, statusNames[stat], statusNames[target])
+                            print '%3d. %s: %s → %s' % (pokedata.dexno, pokedata.name, stat, target)
                         else:
-                            print '%3d. %s: %s' % (pokedata.dexno, pokedata.name, statusNames[stat])
+                            print '%3d. %s: %s' % (pokedata.dexno, pokedata.name, stat)
                     else:
                         method(db, game, pokedata)
 
@@ -194,7 +185,7 @@ def main():
                     pokemon = db.allPokemon(maxno=game.dexsize)
                 for pokedata in pokemon:
                     status = db.getStatus(game, pokedata)
-                    print '%s %3d. %s' % (statusLabels[status], pokedata.dexno,
+                    print '%s %3d. %s' % (status.checks, pokedata.dexno,
                                           pokedata.name)
 
             elif args.cmd == 'getall':
@@ -216,8 +207,8 @@ def main():
                     for g in games:
                         status = db.getStatus(g, pokedata)
                         ### TODO: vv
-                        sys.stdout.write('|' + statusLabels[status]
-                                             + ' ' * (len(g.name)-2))
+                        sys.stdout.write('|' + status.checks + 
+                                         ' ' * (len(g.name)-2))
                     print
 
             elif args.cmd == 'list':

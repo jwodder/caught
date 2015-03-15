@@ -45,10 +45,8 @@
     - Add a command for showing all information about a specific Pokémon?
     - Let `getall` take multiple `--games` switches (and/or multiple `--game`
       switches, allowing it to subsume `get`?)
-    - Improve the output of `getall`
-        - Handle padding with non-ASCII characters
-        - Add a special status label for Pokémon not in a given game (apply to
-          `get` as well)
+    - `getall`: Add a special status label for Pokémon not in a given game
+      (apply to `get` as well?)
     - Rename the `-G` option
     - Let the `add` family, `get`, and `getall` take Pokémon specifications as
       species names, dexnos, or ranges (given as two species and/or dexnos

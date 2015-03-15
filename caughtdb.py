@@ -174,7 +174,7 @@ CREATE TABLE caught (gameID INTEGER NOT NULL REFERENCES games(gameID),
         try:
             status, = cursor.fetchone()
         except TypeError:
-            return self.UNCAUGHT
+            return Status.UNCAUGHT
         return Status.fromValue(status)
 
     def getStatusRange(self, game, start=None, end=None):  # inclusive range

@@ -4,6 +4,7 @@ import argparse
 from   collections import OrderedDict
 import csv
 import heapq
+from   itertools import izip_longest
 import os
 import sys
 import caughtdb
@@ -74,6 +75,39 @@ def getGame(db, args, game, warn_on_fail=False):
 def GameCSV(arg):
     ### TODO: Expand/customize (and add appropriate error handling?)
     return next(csv.reader([arg]))
+
+
+class Tabulator(object):
+    def __init__(self, minlengths):
+        self.minlengths = tuple(minlengths)
+
+    def header(self, heads):
+        self.widths = [self.minlengths[0]]
+        sys.stdout.write(' ' * self.minlengths[0])
+        for h, ml in izip_longest(heads, self.minlengths[1:], fillvalue=0):
+            if h == 0:
+                break
+            h = h.decode('utf-8')
+            self.widths.append(max(len(h), ml))
+            sys.stdout.write((u'|%-*s' % (self.widths[-1], h)).encode('utf-8'))
+        sys.stdout.write('\n')
+        print '|'.join('-' * w for w in self.widths)
+
+    def row(self, values):
+        first = True
+        for val, width in izip_longest(values, self.widths):
+            if width is None:
+                break
+            if first:
+                first = False
+            else:
+                sys.stdout.write('|')
+            val = val.decode('utf-8')
+            sys.stdout.write((u'%-*s' % (width, val or '')).encode('utf-8'))
+        sys.stdout.write('\n')
+
+    def end(self):
+        pass
 
 
 def main():
@@ -193,23 +227,18 @@ def main():
                     games = [getGame(db, args, g) for g in args.games]
                 else:
                     games = db.allGames()
-                ### TODO: vv
-                print ' ' * (POKEMON_NAME_LEN+5) + '|' + '|'.join(g.name
-                                                                  for g in games)
+                table = Tabulator([POKEMON_NAME_LEN+5] + [2]*len(games))
+                table.header(g.name for g in games)
                 if args.file or args.pokemon:
                     pokemon = listPokemon(db, args, warn_on_fail=True)
                 else:
                     pokemon = db.allPokemon(maxno=max(g.dexsize for g in games))
                 for pokedata in pokemon:
-                    sys.stdout.write('%3d. %-*s' % (pokedata.dexno,
-                                                    POKEMON_NAME_LEN,
-                                                    pokedata.name))
-                    for g in games:
-                        status = db.getStatus(g, pokedata)
-                        ### TODO: vv
-                        sys.stdout.write('|' + status.checks + 
-                                         ' ' * (len(g.name)-2))
-                    print
+                    table.row(['%3d. %-*s' % (pokedata.dexno, POKEMON_NAME_LEN,
+                                              pokedata.name)]
+                              + [db.getStatus(g, pokedata).checks
+                                 for g in games])
+                table.end()
 
             elif args.cmd == 'list':
                 game = getGame(db, args, args.game)

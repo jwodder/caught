@@ -56,7 +56,6 @@
     - Give `new` an option for automatically making the version and player name
       synonyms of the game
     - Give `get`/`getall` JSON output modes
-    - Add a command for displaying a table of statistics for each game?
     - Should `list` take an optional set of Pokémon to restrict itself to?
     - Add a tabular output mode for `games`?
 
@@ -79,6 +78,7 @@
   strings (and so that `dexsize` is always an integer?)
 - Give `Status` (and `Pokemon` and `Game`?) an `__eq__` method that allows for
   comparison with integers
+- Add support for event Pokémon that are not needed for completing the Pokédex?
 
 - Generalize the code into being able to track completion of sets
   (corresponding to games) of arbitrary checklists

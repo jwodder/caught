@@ -102,7 +102,7 @@ class Tabulator(object):
                 first = False
             else:
                 sys.stdout.write('|')
-            val = val.decode('utf-8')
+            val = str(val).decode('utf-8')
             sys.stdout.write((u'%-*s' % (width, val or '')).encode('utf-8'))
         sys.stdout.write('\n')
 
@@ -161,6 +161,9 @@ def main():
     subparser_games.add_argument('-J', '--json', action='store_true')
     subparser_games.add_argument('-s', '--stats', action='store_true')
     subparser_games.add_argument('games', nargs='*')
+
+    subparser_stats = subparser.add_parser('stats')
+    subparser_stats.add_argument('games', nargs='*')
 
     args = parser.parse_args()
 
@@ -278,6 +281,19 @@ def main():
                 else:
                     for game in games:
                         print game.asYAML(*gameArgs(game))
+
+            elif args.cmd == 'stats':
+                if args.games:
+                    games = filter(None, [getGame(db, args, g, warn_on_fail=True)
+                                          for g in args.games])
+                else:
+                    games = db.allGames()
+                table = Tabulator([max(len(g.name.decode('utf-8')) for g in games), 3, 3])
+                table.header(['caught or owned', 'owned', 'maximum'])
+                for game in games:
+                    caught, owned = db.getGameCount(game)
+                    table.row([game.name, caught+owned, owned, game.dexsize])
+                table.end()
 
     except caughtdb.CaughtDBError as e:
         raise SystemExit(sys.argv[0] + ': ' + str(e))

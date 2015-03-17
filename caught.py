@@ -5,6 +5,7 @@ from   collections import OrderedDict
 import csv
 import heapq
 from   itertools import izip_longest
+import json
 import os
 import sys
 import caughtdb
@@ -78,36 +79,53 @@ def GameCSV(arg):
 
 
 class Tabulator(object):
-    def __init__(self, minlengths):
+    def __init__(self, minlengths, json=False):
         self.minlengths = tuple(minlengths)
+        self.json = json
+        self.first = True
 
     def header(self, heads):
-        self.widths = [self.minlengths[0]]
-        sys.stdout.write(' ' * self.minlengths[0])
-        for h, ml in izip_longest(heads, self.minlengths[1:], fillvalue=0):
-            if h == 0:
-                break
-            h = h.decode('utf-8')
-            self.widths.append(max(len(h), ml))
-            sys.stdout.write((u'|%-*s' % (self.widths[-1], h)).encode('utf-8'))
-        sys.stdout.write('\n')
-        print '|'.join('-' * w for w in self.widths)
+        if self.json:
+            self.header = tuple(heads)
+            sys.stdout.write('{')
+        else:
+            self.widths = [self.minlengths[0]]
+            sys.stdout.write(' ' * self.minlengths[0])
+            for h, ml in izip_longest(heads, self.minlengths[1:], fillvalue=0):
+                if h == 0:
+                    break
+                h = h.decode('utf-8')
+                self.widths.append(max(len(h), ml))
+                sys.stdout.write((u'|%-*s' % (self.widths[-1], h)).encode('utf-8'))
+            sys.stdout.write('\n')
+            print '|'.join('-' * w for w in self.widths)
 
     def row(self, values):
-        first = True
-        for val, width in izip_longest(values, self.widths):
-            if width is None:
-                break
-            if first:
-                first = False
+        if self.json:
+            if self.first:
+                self.first = False
             else:
-                sys.stdout.write('|')
-            val = str(val).decode('utf-8')
-            sys.stdout.write((u'%-*s' % (width, val or '')).encode('utf-8'))
-        sys.stdout.write('\n')
+                sys.stdout.write(',')
+            values = tuple(values)
+            sys.stdout.write(json.dumps(values[0]) + ':' +
+                             json.dumps(dict(izip_longest(self.header,
+                                                          values[1:]))))
+        else:
+            first = True
+            for val, width in izip_longest(values, self.widths):
+                if width is None:
+                    break
+                if first:
+                    first = False
+                else:
+                    sys.stdout.write('|')
+                val = str(val).decode('utf-8')
+                sys.stdout.write((u'%-*s' % (width, val or '')).encode('utf-8'))
+            sys.stdout.write('\n')
 
     def end(self):
-        pass
+        if self.json:
+            sys.stdout.write('}\n')
 
 
 def main():
@@ -151,6 +169,7 @@ def main():
     subparser_getall.add_argument('--games', type=GameCSV)
     subparser_getall.add_argument('-F', '--file', action='append', default=[],
                                   type=argparse.FileType('r'))
+    ###subparser_getall.add_argument('-J', '--json', action='store_true')
     subparser_getall.add_argument('pokemon', nargs='*')
 
     subparser_list = subparser.add_parser('list')
@@ -163,6 +182,7 @@ def main():
     subparser_games.add_argument('games', nargs='*')
 
     subparser_stats = subparser.add_parser('stats')
+    subparser_stats.add_argument('-J', '--json', action='store_true')
     subparser_stats.add_argument('games', nargs='*')
 
     args = parser.parse_args()
@@ -230,7 +250,9 @@ def main():
                     games = [getGame(db, args, g) for g in args.games]
                 else:
                     games = db.allGames()
-                table = Tabulator([POKEMON_NAME_LEN+5] + [2]*len(games))
+                table = Tabulator([POKEMON_NAME_LEN+5] + [2]*len(games),
+                                  ###json=args.json
+                                 )
                 table.header(g.name for g in games)
                 if args.file or args.pokemon:
                     pokemon = listPokemon(db, args, warn_on_fail=True)
@@ -288,7 +310,7 @@ def main():
                                           for g in args.games])
                 else:
                     games = db.allGames()
-                table = Tabulator([max(len(g.name.decode('utf-8')) for g in games), 3, 3])
+                table = Tabulator([max(len(g.name.decode('utf-8')) for g in games), 3, 3], json=args.json)
                 table.header(['caught or owned', 'owned', 'maximum'])
                 for game in games:
                     caught, owned = db.getGameCount(game)

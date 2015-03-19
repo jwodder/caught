@@ -160,17 +160,11 @@ def main():
         sp.add_argument('pokemon', nargs='*')
 
     subparser_get = subparser.add_parser('get')
+    subparser_get.add_argument('--games', type=GameCSV)
     subparser_get.add_argument('-F', '--file', action='append', default=[],
-                               type=argparse.FileType('r'))
-    subparser_get.add_argument('game')
-    subparser_get.add_argument('pokemon', nargs='*')
-
-    subparser_getall = subparser.add_parser('getall')
-    subparser_getall.add_argument('--games', type=GameCSV)
-    subparser_getall.add_argument('-F', '--file', action='append', default=[],
                                   type=argparse.FileType('r'))
-    ###subparser_getall.add_argument('-J', '--json', action='store_true')
-    subparser_getall.add_argument('pokemon', nargs='*')
+    ###subparser_get.add_argument('-J', '--json', action='store_true')
+    subparser_get.add_argument('pokemon', nargs='*')
 
     subparser_list = subparser.add_parser('list')
     subparser_list.add_argument('status')
@@ -235,17 +229,6 @@ def main():
                         method(db, game, pokedata)
 
             elif args.cmd == 'get':
-                game = getGame(db, args, args.game)
-                if args.file or args.pokemon:
-                    pokemon = listPokemon(db, args, warn_on_fail=True)
-                else:
-                    pokemon = db.allPokemon(maxno=game.dexsize)
-                for pokedata in pokemon:
-                    status = db.getStatus(game, pokedata)
-                    print '%s %3d. %s' % (status.checks, pokedata.dexno,
-                                          pokedata.name)
-
-            elif args.cmd == 'getall':
                 if args.games:
                     games = [getGame(db, args, g) for g in args.games]
                 else:

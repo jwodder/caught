@@ -43,19 +43,17 @@
     - Fill in 'help', 'metavar', and other help message-related values for
       argparse
     - Add a command for showing all information about a specific Pokémon?
-    - Let `getall` take multiple `--games` switches (and/or multiple `--game`
-      switches, allowing it to subsume `get`?)
-    - `getall`: Add a special status label for Pokémon not in a given game
-      (apply to `get` as well?)
+    - Let `get` take multiple `--games` switches?
+    - `get`: Add a special status label for Pokémon not in a given game
     - Rename the `-G` option
-    - Let the `add` family, `get`, and `getall` take Pokémon specifications as
-      species names, dexnos, or ranges (given as two species and/or dexnos
-      separated by a hyphen)
+    - Let the `add` family and `get` take Pokémon specifications as species
+      names, dexnos, or ranges (given as two species and/or dexnos separated by
+      a hyphen)
     - `new`: Make the `dexsize` argument optional (and default to the number of
       Pokémon known) ?
     - Give `new` an option for automatically making the version and player name
       synonyms of the game
-    - Give `get`/`getall` JSON output modes
+    - Give `get` a JSON output mode
     - Should `list` take an optional set of Pokémon to restrict itself to?
     - Add a tabular output mode for `games`?
 

@@ -10,8 +10,6 @@
       the very least, those that can propagate to the top of `caught.py` during
       normal execution should be more end-user friendly)
     - Add a method for testing whether `create` has been run on the DB
-    - The `synonyms` attributes of Game and Pokemon objects should not include
-      the canonical name (or, for Pokemon, the dexno)
     - Should `getGame` fall back to looking up by gameID if no name is found?
     - When `getGame` is called, if there exists a `game_names` entry for that
       name, that should be returned.  Otherwise, all games whose `version`
@@ -19,10 +17,8 @@
       there is exactly one, it is returned, otherwise it is an error.
         - Add a `getGameByName` method that only searches the `game_names`
           table (and add an option to `caught.py` for making use of it)
-    - The following methods need to be better about rolling back changes if an
-      exception is raised in the middle of execution:
-        - `create`
-        - `newGame`
+    - `create` and `newGame` need to roll back partial changes if an exception
+      is raised in the middle of execution
     - Add a method and/or DB constraint for ensuring there are no `UNCAUGHT`
       entries in `caught`
 
@@ -44,7 +40,6 @@
       argparse
     - Add a command for showing all information about a specific Pokémon?
     - Let `get` take multiple `--games` switches?
-    - `get`: Add a special status label for Pokémon not in a given game
     - Rename the `-G` option
     - Let the `add` family and `get` take Pokémon specifications as species
       names, dexnos, or ranges (given as two species and/or dexnos separated by
@@ -54,9 +49,11 @@
     - Give `new` an option for automatically making the version and player name
       synonyms of the game
     - Give `get` a JSON output mode
-    - Should `list` take an optional set of Pokémon to restrict itself to?
+    - Make `list` take an optional set of Pokémon to restrict itself to
     - Add a tabular output mode for `games`?
 
+- The `synonyms` attributes of Game and Pokemon objects should not include the
+  canonical name (or, for Pokemon, the dexno)
 - Add functionality for extending/updating the Pokédex
 - Should CaughtDB and/or caught.py raise an error when trying to set the status
   for a Pokémon that is beyond a game's dexsize?

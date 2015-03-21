@@ -27,6 +27,8 @@ set_cmds = OrderedDict([('add', (CaughtDB.markCaught, (Status.UNCAUGHT,), Status
 
 POKEMON_NAME_LEN = 12
 
+NONEXISTENT = '##'
+
 def warn(s):
     #sys.stderr.write(sys.argv[0] + ': ' + s + "\n")
     sys.stderr.write('Warning: ' + s + "\n")
@@ -245,6 +247,8 @@ def main():
                     table.row(['%3d. %-*s' % (pokedata.dexno, POKEMON_NAME_LEN,
                                               pokedata.name)]
                               + [db.getStatus(g, pokedata).checks
+                                 if pokedata.dexno <= g.dexsize
+                                 else NONEXISTENT
                                  for g in games])
                 table.end()
 

@@ -33,32 +33,45 @@ def warn(s):
     #sys.stderr.write(sys.argv[0] + ': ' + s + "\n")
     sys.stderr.write('Warning: ' + s + "\n")
 
-def listPokemon(db, args, warn_on_fail=False):
+def listPokemon(db, args, maxno=None, warn_on_fail=False):
     for fp in args.file:
         with fp:
             for line in fp:
                 line = line.strip()
                 if line == '' or line[0] == '#':
                     continue
-                pokedata = getPokemon(db, args, line, warn_on_fail)
-                if pokedata is not None:
+                for pokedata in getPokemon(db, args, line, maxno, warn_on_fail):
                     yield pokedata
     for poke in args.pokemon:
-        pokedata = getPokemon(db, args, poke, warn_on_fail)
-        if pokedata is not None:
+        for pokedata in getPokemon(db, args, poke, maxno, warn_on_fail):
             yield pokedata
 
-def getPokemon(db, args, poke, warn_on_fail=False):
+def splitHyphens(s):
+    i = s.find('-')
+    while i != -1:
+        if 0 < i < len(s)-1:
+            yield (s[:i], s[i+1:])
+        i = s.find('-', i+1)
+
+def getPokemon(db, args, poke, maxno=None, warn_on_fail=False):
     try:
         pokedata = db.getPokemon(poke)
     except caughtdb.NoSuchPokemonError as e:
+        for (a,b) in splitHyphens(poke):
+            try:
+                pokeA = db.getPokemon(a)
+                pokeB = db.getPokemon(b)
+            except caughtdb.NoSuchPokemonError:
+                continue
+            else:
+                return db.getPokemonRange(pokeA, pokeB, maxno)
         if warn_on_fail:
             warn(str(e))
-            return None
+            return []
         else:
             raise e
     else:
-        return pokedata
+        return [pokedata]
 
 def getGame(db, args, game, warn_on_fail=False):
     try:
@@ -219,7 +232,7 @@ def main():
             elif args.cmd in set_cmds:
                 method, domain, target = set_cmds[args.cmd]
                 game = getGame(db, args, args.game)
-                for pokedata in listPokemon(db, args):
+                for pokedata in listPokemon(db, args, maxno=game.dexsize):
                     if args.verbose:
                         stat = db.getStatus(game, pokedata)
                         if stat in domain:
@@ -239,10 +252,11 @@ def main():
                                   ###json=args.json
                                  )
                 table.header(g.name for g in games)
+                maxno = max(g.dexsize for g in games)
                 if args.file or args.pokemon:
-                    pokemon = listPokemon(db, args, warn_on_fail=True)
+                    pokemon = listPokemon(db, args, maxno=maxno, warn_on_fail=True)
                 else:
-                    pokemon = db.allPokemon(maxno=max(g.dexsize for g in games))
+                    pokemon = db.allPokemon(maxno=maxno)
                 for pokedata in pokemon:
                     table.row(['%3d. %-*s' % (pokedata.dexno, POKEMON_NAME_LEN,
                                               pokedata.name)]

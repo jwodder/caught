@@ -6,6 +6,8 @@
 - By default, "game" arguments that are all digits are interpreted as game IDs,
   unless the program-wide option `-G` is supplied, which forces them to be
   interpreted as regular names.
+- The `add` family and `get` take Pokémon specifications as species names,
+  dexnos, or ranges (given as two species and/or dexnos separated by a hyphen).
 
     caught create pokedex
 

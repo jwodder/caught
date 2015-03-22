@@ -119,6 +119,17 @@ CREATE TABLE caught (gameID INTEGER NOT NULL REFERENCES games(gameID),
             raise NoSuchPokemonError(dexno=gameID)
         return Pokemon(dexno, name, self.get_pokemon_names(dexno))
 
+    def getPokemonRange(self, pokeA, pokeB, maxno=None):
+        pokeA = int(pokeA)
+        pokeB = int(pokeB)
+        if maxno is not None:
+            pokeB = min(pokeB, maxno)
+        return [Pokemon(dexno, name, self.get_pokemon_names(dexno))
+                for dexno, name
+                in self.db.execute('SELECT dexno, name FROM pokemon'
+                                   ' WHERE ? <= dexno AND dexno <= ?'
+                                   ' ORDER BY dexno ASC', (pokeA, pokeB))]
+
     def allPokemon(self, maxno=None):
         if maxno is None:
             results = self.db.execute('SELECT dexno, name FROM pokemon'

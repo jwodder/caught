@@ -41,9 +41,6 @@
     - Add a command for showing all information about a specific Pokémon?
     - Let `get` take multiple `--games` switches?
     - Rename the `-G` option
-    - Let the `add` family and `get` take Pokémon specifications as species
-      names, dexnos, or ranges (given as two species and/or dexnos separated by
-      a hyphen)
     - `new`: Make the `dexsize` argument optional (and default to the number of
       Pokémon known) ?
     - Give `new` an option for automatically making the version and player name
@@ -55,8 +52,8 @@
 - The `synonyms` attributes of Game and Pokemon objects should not include the
   canonical name (or, for Pokemon, the dexno)
 - Add functionality for extending/updating the Pokédex
-- Should CaughtDB and/or caught.py raise an error when trying to set the status
-  for a Pokémon that is beyond a game's dexsize?
+- CaughtDB and/or caught.py should raise an error when trying to set the status
+  for a Pokémon that is beyond a game's dexsize
 - Add support for keeping track of Unown forms
 - Add support for regional Pokédexes
 - Add a "seen" status

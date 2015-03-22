@@ -71,6 +71,8 @@
 - Give `Status` (and `Pokemon` and `Game`?) an `__eq__` method that allows for
   comparison with integers
 - Add support for event Pokémon that are not needed for completing the Pokédex?
+- Sidestep the whole "force_gname" thing by prohibiting using numbers as game
+  names?
 
 - Generalize the code into being able to track completion of sets
   (corresponding to games) of arbitrary checklists

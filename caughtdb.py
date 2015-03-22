@@ -33,7 +33,8 @@ CREATE TABLE caught (gameID INTEGER NOT NULL REFERENCES games(gameID),
         self.db.execute('PRAGMA foreign_keys = ON')
         self.db.execute('PRAGMA encoding = "UTF-8"')  # Is this necessary?
 
-    def __enter__(self): return self
+    def __enter__(self):
+        return self
 
     def __exit__(self, exc_type, exc_value, traceback):
         if exc_type is None:
@@ -116,7 +117,7 @@ CREATE TABLE caught (gameID INTEGER NOT NULL REFERENCES games(gameID),
         try:
             name, = cursor.fetchone()
         except TypeError:
-            raise NoSuchPokemonError(dexno=gameID)
+            raise NoSuchPokemonError(dexno=dexno)
         return Pokemon(dexno, name, self.get_pokemon_names(dexno))
 
     def getPokemonRange(self, pokeA, pokeB, maxno=None):
@@ -168,8 +169,8 @@ CREATE TABLE caught (gameID INTEGER NOT NULL REFERENCES games(gameID),
     def getGameCount(self, game):
         caught, = self.db.execute('SELECT count(*) FROM caught WHERE gameID = ?'
                                   ' AND status = ?', (int(game), int(Status.CAUGHT)))
-        owned,  = self.db.execute('SELECT count(*) FROM caught WHERE gameID = ?'
-                                  ' AND status = ?', (int(game), int(Status.OWNED)))
+        owned, = self.db.execute('SELECT count(*) FROM caught WHERE gameID = ?'
+                                 ' AND status = ?', (int(game), int(Status.OWNED)))
         return (caught[0], owned[0])
 
     def allGames(self):
@@ -282,20 +283,24 @@ CREATE TABLE caught (gameID INTEGER NOT NULL REFERENCES games(gameID),
 class Status(namedtuple('Status', 'value name checks')):
     __slots__ = ()
 
-    def __int__(self): return self.value
+    def __int__(self):
+        return self.value
 
-    def __str__(self): return self.name
+    def __str__(self):
+        return self.name
 
-    def __repr__(self): return self.__class__.__name__ + '.' + self.name.upper()
+    def __repr__(self):
+        return self.__class__.__name__ + '.' + self.name.upper()
 
     @classmethod
-    def fromValue(cls, val): return cls.STATUSES[val]
+    def fromValue(cls, val):
+        return cls.STATUSES[val]
 
 ### TODO: Improve the checkmarks:
-Status.UNCAUGHT   = Status(0, 'uncaught', '  ')
-Status.CAUGHT     = Status(1, 'caught',   '✓ ')
-Status.OWNED      = Status(2, 'owned',    '✓✓')
-Status.STATUSES   = (Status.UNCAUGHT, Status.CAUGHT, Status.OWNED)
+Status.UNCAUGHT = Status(0, 'uncaught', '  ')
+Status.CAUGHT = Status(1, 'caught', '✓ ')
+Status.OWNED = Status(2, 'owned', '✓✓')
+Status.STATUSES = (Status.UNCAUGHT, Status.CAUGHT, Status.OWNED)
 Status.CHECKS_LEN = 2
 
 
@@ -304,9 +309,11 @@ class Game(namedtuple('Game', 'gameID name version player_name dexsize synonyms'
 # `None`.
     __slots__ = ()
 
-    def __int__(self): return self.gameID
+    def __int__(self):
+        return self.gameID
 
-    def __str__(self): return self.name
+    def __str__(self):
+        return self.name
 
     def asYAML(self, caught_or_owned=None, owned=None):
         version = 'null' if self.version is None else self.version
@@ -350,9 +357,11 @@ class Game(namedtuple('Game', 'gameID name version player_name dexsize synonyms'
 class Pokemon(namedtuple('Pokemon', 'dexno name synonyms')):
     __slots__ = ()
 
-    def __int__(self): return self.dexno
+    def __int__(self):
+        return self.dexno
 
-    def __str__(self): return self.name
+    def __str__(self):
+        return self.name
 
     @classmethod
     def fromTSVFile(cls, pokedex):
@@ -372,12 +381,13 @@ class Pokemon(namedtuple('Pokemon', 'dexno name synonyms')):
                 yield cls(dexno, fields[1], tuple(fields[2:]))
 
 
-class CaughtDBError(Exception): pass
+class CaughtDBError(Exception):
+    pass
 
 
 class NoSuchGameError(CaughtDBError, LookupError):
     def __init__(self, name=None, gameID=None):
-        self.name   = name
+        self.name = name
         self.gameID = gameID
         super(NoSuchGameError, self).__init__(name, gameID)
 
@@ -390,7 +400,7 @@ class NoSuchGameError(CaughtDBError, LookupError):
 
 class NoSuchPokemonError(CaughtDBError, LookupError):
     def __init__(self, name=None, dexno=None):
-        self.name  = name
+        self.name = name
         self.dexno = dexno
         super(NoSuchPokemonError, self).__init__(name, dexno)
 

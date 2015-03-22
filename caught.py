@@ -9,7 +9,7 @@ import json
 import os
 import sys
 import caughtdb
-from   caughtdb import CaughtDB, Game, Pokemon, Status
+from   caughtdb import CaughtDB, Game, Status
 
 ### TODO: Make this non-Unix friendly:
 default_dbfile = os.environ.get("HOME", ".") + '/.caughtdb'
@@ -40,10 +40,10 @@ def listPokemon(db, args, maxno=None, warn_on_fail=False):
                 line = line.strip()
                 if line == '' or line[0] == '#':
                     continue
-                for pokedata in getPokemon(db, args, line, maxno, warn_on_fail):
+                for pokedata in getPokemon(db, line, maxno, warn_on_fail):
                     yield pokedata
     for poke in args.pokemon:
-        for pokedata in getPokemon(db, args, poke, maxno, warn_on_fail):
+        for pokedata in getPokemon(db, poke, maxno, warn_on_fail):
             yield pokedata
 
 def splitHyphens(s):
@@ -53,11 +53,11 @@ def splitHyphens(s):
             yield (s[:i], s[i+1:])
         i = s.find('-', i+1)
 
-def getPokemon(db, args, poke, maxno=None, warn_on_fail=False):
+def getPokemon(db, poke, maxno=None, warn_on_fail=False):
     try:
         pokedata = db.getPokemon(poke)
     except caughtdb.NoSuchPokemonError as e:
-        for (a,b) in splitHyphens(poke):
+        for (a, b) in splitHyphens(poke):
             try:
                 pokeA = db.getPokemon(a)
                 pokeB = db.getPokemon(b)
@@ -73,9 +73,9 @@ def getPokemon(db, args, poke, maxno=None, warn_on_fail=False):
     else:
         return [pokedata]
 
-def getGame(db, args, game, warn_on_fail=False):
+def getGame(db, game, warn_on_fail=False, force_gname=False):
     try:
-        if game.isdigit() and not args.force_gname:
+        if game.isdigit() and not force_gname:
             gamedata = db.getGameByID(int(game))
         else:
             gamedata = db.getGame(game)
@@ -94,14 +94,16 @@ def GameCSV(arg):
 
 
 class Tabulator(object):
-    def __init__(self, minlengths, json=False):
+    def __init__(self, minlengths, use_json=False):
         self.minlengths = tuple(minlengths)
-        self.json = json
+        self.json = use_json
         self.first = True
+        self.heads = None
+        self.widths = None
 
     def header(self, heads):
         if self.json:
-            self.header = tuple(heads)
+            self.heads = tuple(heads)
             sys.stdout.write('{')
         else:
             self.widths = [self.minlengths[0]]
@@ -116,6 +118,8 @@ class Tabulator(object):
             print '|'.join('-' * w for w in self.widths)
 
     def row(self, values):
+        if self.heads is None:
+            raise RuntimeError('Tabulator.row() called before Tabulator.header()')
         if self.json:
             if self.first:
                 self.first = False
@@ -123,7 +127,7 @@ class Tabulator(object):
                 sys.stdout.write(',')
             values = tuple(values)
             sys.stdout.write(json.dumps(values[0]) + ':' +
-                             json.dumps(dict(izip_longest(self.header,
+                             json.dumps(dict(izip_longest(self.heads,
                                                           values[1:]))))
         else:
             first = True
@@ -212,7 +216,7 @@ def main():
 
             elif args.cmd == 'delete':
                 for g in args.games:
-                    game = getGame(db, args, g, warn_on_fail=True)
+                    game = getGame(db, g, warn_on_fail=True, force_gname=args.force_gname)
                     if game is None:
                         continue
                     yesdel = args.force
@@ -231,7 +235,7 @@ def main():
 
             elif args.cmd in set_cmds:
                 method, domain, target = set_cmds[args.cmd]
-                game = getGame(db, args, args.game)
+                game = getGame(db, args.game, force_gname=args.force_gname)
                 for pokedata in listPokemon(db, args, maxno=game.dexsize):
                     if args.verbose:
                         stat = db.getStatus(game, pokedata)
@@ -245,11 +249,12 @@ def main():
 
             elif args.cmd == 'get':
                 if args.games:
-                    games = [getGame(db, args, g) for g in args.games]
+                    games = [getGame(db, g, force_gname=args.force_gname)
+                             for g in args.games]
                 else:
                     games = db.allGames()
                 table = Tabulator([POKEMON_NAME_LEN+5] + [2]*len(games),
-                                  ###json=args.json
+                                  ###use_json=args.json
                                  )
                 table.header(g.name for g in games)
                 maxno = max(g.dexsize for g in games)
@@ -267,7 +272,7 @@ def main():
                 table.end()
 
             elif args.cmd == 'list':
-                game = getGame(db, args, args.game)
+                game = getGame(db, args.game, force_gname=args.force_gname)
                 toList = set()
                 for status in args.status.split('/'):
                     status = status.strip().lower()
@@ -292,7 +297,8 @@ def main():
                 else:
                     gameArgs = lambda _: ()
                 if args.games:
-                    games = filter(None, [getGame(db, args, g, warn_on_fail=True)
+                    games = filter(None, [getGame(db, g, warn_on_fail=True,
+                                                  force_gname=args.force_gname)
                                           for g in args.games])
                 else:
                     games = db.allGames()
@@ -307,11 +313,12 @@ def main():
 
             elif args.cmd == 'stats':
                 if args.games:
-                    games = filter(None, [getGame(db, args, g, warn_on_fail=True)
+                    games = filter(None, [getGame(db, g, warn_on_fail=True,
+                                                  force_gname=args.force_gname)
                                           for g in args.games])
                 else:
                     games = db.allGames()
-                table = Tabulator([max(len(g.name.decode('utf-8')) for g in games), 3, 3], json=args.json)
+                table = Tabulator([max(len(g.name.decode('utf-8')) for g in games), 3, 3], use_json=args.json)
                 table.header(['caught or owned', 'owned', 'maximum'])
                 for game in games:
                     caught, owned = db.getGameCount(game)

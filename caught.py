@@ -118,7 +118,7 @@ class Tabulator(object):
             print '|'.join('-' * w for w in self.widths)
 
     def row(self, values):
-        if self.heads is None:
+        if self.heads is None and self.widths is None:
             raise RuntimeError('Tabulator.row() called before Tabulator.header()')
         if self.json:
             if self.first:

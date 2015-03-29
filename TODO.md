@@ -38,6 +38,7 @@
           backup
     - Fill in 'help', 'metavar', and other help message-related values for
       argparse
+        - cf. <http://stackoverflow.com/a/28908244/744178>
     - Add a command for showing all information about a specific Pokémon?
     - Let `get` take multiple `--games` switches?
     - Rename the `-G` option
@@ -45,7 +46,6 @@
       Pokémon known) ?
     - Give `new` an option for automatically making the version and player name
       synonyms of the game
-    - Give `get` a JSON output mode
     - Make `list` take an optional set of Pokémon to restrict itself to
     - Add a tabular output mode for `games`?
 

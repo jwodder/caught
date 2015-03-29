@@ -31,7 +31,7 @@
     caught release  [-F | --file file] [-v | --verbose] game pokemon ...  # owned → caught
     caught uncaught [-F | --file file] [-v | --verbose] game pokemon ...  # * → uncaught
 
-    caught get [--games game1,game2]  [-F | --file file] [pokemon ...]
+    caught get [--games game1,game2] [-J | --json] [-F | --file file] [pokemon ...]
 
     caught list status game
     # Statuses:

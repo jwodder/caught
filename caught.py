@@ -182,7 +182,7 @@ def main():
     subparser_get.add_argument('--games', type=GameCSV)
     subparser_get.add_argument('-F', '--file', action='append', default=[],
                                   type=argparse.FileType('r'))
-    ###subparser_get.add_argument('-J', '--json', action='store_true')
+    subparser_get.add_argument('-J', '--json', action='store_true')
     subparser_get.add_argument('pokemon', nargs='*')
 
     subparser_list = subparser.add_parser('list')
@@ -254,21 +254,29 @@ def main():
                 else:
                     games = db.allGames()
                 table = Tabulator([POKEMON_NAME_LEN+5] + [2]*len(games),
-                                  ###use_json=args.json
-                                 )
+                                  use_json=args.json)
                 table.header(g.name for g in games)
                 maxno = max(g.dexsize for g in games)
                 if args.file or args.pokemon:
-                    pokemon = listPokemon(db, args, maxno=maxno, warn_on_fail=True)
+                    pokemon = listPokemon(db, args, maxno=maxno,
+                                          warn_on_fail=True)
                 else:
                     pokemon = db.allPokemon(maxno=maxno)
                 for pokedata in pokemon:
-                    table.row(['%3d. %-*s' % (pokedata.dexno, POKEMON_NAME_LEN,
-                                              pokedata.name)]
-                              + [db.getStatus(g, pokedata).checks
-                                 if pokedata.dexno <= g.dexsize
-                                 else NONEXISTENT
-                                 for g in games])
+                    stats = [db.getStatus(g, pokedata)
+                             if pokedata.dexno <= g.dexsize
+                             else None
+                             for g in games]
+                    if args.json:
+                        table.row([pokedata.name] +
+                                  [s.name if s is not None else s
+                                   for s in stats])
+                    else:
+                        table.row(['%3d. %-*s' % (pokedata.dexno,
+                                                  POKEMON_NAME_LEN,
+                                                  pokedata.name)] +
+                                  [s.checks if s is not None else NONEXISTENT
+                                   for s in stats])
                 table.end()
 
             elif args.cmd == 'list':

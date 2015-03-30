@@ -20,10 +20,18 @@ statuses = {"uncaught": set([Status.UNCAUGHT]),
             "owned":    set([Status.OWNED]),
             "unowned":  set([Status.UNCAUGHT, Status.CAUGHT])}
 
-set_cmds = OrderedDict([('add', (CaughtDB.markCaught, (Status.UNCAUGHT,), Status.CAUGHT)),
-                        ('own', (CaughtDB.markOwned, (Status.UNCAUGHT, Status.CAUGHT), Status.OWNED)),
-                        ('release', (CaughtDB.markReleased, (Status.OWNED,), Status.CAUGHT)),
-                        ('uncatch', (CaughtDB.markUncaught, (Status.CAUGHT, Status.OWNED), Status.UNCAUGHT))])
+set_cmds = OrderedDict([('add',     (CaughtDB.markCaught,
+                                     (Status.UNCAUGHT,),
+                                     Status.CAUGHT)),
+                        ('own',     (CaughtDB.markOwned,
+                                     (Status.UNCAUGHT, Status.CAUGHT),
+                                     Status.OWNED)),
+                        ('release', (CaughtDB.markReleased,
+                                     (Status.OWNED,),
+                                     Status.CAUGHT)),
+                        ('uncatch', (CaughtDB.markUncaught,
+                                     (Status.CAUGHT, Status.OWNED),
+                                     Status.UNCAUGHT))])
 
 POKEMON_NAME_LEN = 12
 
@@ -162,8 +170,8 @@ def main():
     subparser_new.add_argument('-q', '--quiet', action='store_true')
     subparser_new.add_argument('--version')
     subparser_new.add_argument('--player-name', '--player')
+    subparser_new.add_argument('-D', '--dexsize', type=int)
     subparser_new.add_argument('name')
-    subparser_new.add_argument('dexsize', type=int)
     subparser_new.add_argument('synonyms', nargs='*')
 
     subparser_delete = subparser.add_parser('delete')
@@ -207,6 +215,8 @@ def main():
                 db.create(args.pokedex)
 
             elif args.cmd == 'new':
+                if args.dexsize is None:
+                    args.dexsize = db.pokemonQty()
                 gameID = db.newGame(Game(None, args.name, args.version,
                                          args.player_name, args.dexsize,
                                          args.synonyms),
@@ -291,9 +301,8 @@ def main():
                                                      + ': invalid status')
                 pokemon = []
                 for status in toList:
-                    pokemon = heapq.merge(pokemon,
-                                          db.getByStatus(game, status,
-                                                         game.dexsize))
+                    pokemon = heapq.merge(pokemon, db.getByStatus(game, status,
+                                                                  game.dexsize))
                 for poke in pokemon:
                     print str(poke)
 

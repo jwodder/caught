@@ -42,12 +42,11 @@
     - Add a command for showing all information about a specific Pokémon?
     - Let `get` take multiple `--games` switches?
     - Rename the `-G` option
-    - `new`: Make the `dexsize` argument optional (and default to the number of
-      Pokémon known) ?
     - Give `new` an option for automatically making the version and player name
       synonyms of the game
     - Make `list` take an optional set of Pokémon to restrict itself to
     - Add a tabular output mode for `games`?
+        - Make the output be tabular by default and get rid of YAML support
 
 - The `synonyms` attributes of Game and Pokemon objects should not include the
   canonical name (or, for Pokemon, the dexno)
@@ -73,6 +72,8 @@
 - Add support for event Pokémon that are not needed for completing the Pokédex?
 - Sidestep the whole "force_gname" thing by prohibiting using numbers as game
   names?
+- Eliminate the `pokemon` & `pokemon_names` tables and the dependency on
+  external TSVs and just hardcode the Pokédex into the source code?
 
 - Generalize the code into being able to track completion of sets
   (corresponding to games) of arbitrary checklists

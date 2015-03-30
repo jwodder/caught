@@ -15,7 +15,8 @@
                [-q | --quiet]
                [--version version]
                [--player-name | --player player-name]
-               name dexsize [synonyms ...]
+               [-D | --dexsize dexsize]
+               name [synonyms ...]
 
     caught delete [-f | --force] game ...
 

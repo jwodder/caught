@@ -142,6 +142,13 @@ CREATE TABLE caught (gameID INTEGER NOT NULL REFERENCES games(gameID),
         return [Pokemon(dexno, name, self.get_pokemon_names(dexno))
                 for dexno, name in results]
 
+    def pokemonQty(self):
+        """Returns the largest Pokémon `dexno` in the database, i.e., the
+           largest possible `dexsize` value"""
+        cursor = self.db.cursor()
+        cursor.execute('SELECT dexno FROM pokemon ORDER BY dexno DESC LIMIT 1')
+        return cursor.fetchone()[0]
+
     def getGame(self, name):
         """Returns the ``Game`` object for the game with the given name.
            Raises a ``NoSuchGameError`` if there is no such game."""
@@ -168,9 +175,11 @@ CREATE TABLE caught (gameID INTEGER NOT NULL REFERENCES games(gameID),
 
     def getGameCount(self, game):
         caught, = self.db.execute('SELECT count(*) FROM caught WHERE gameID = ?'
-                                  ' AND status = ?', (int(game), int(Status.CAUGHT)))
+                                  ' AND status = ?',
+                                  (int(game), int(Status.CAUGHT)))
         owned, = self.db.execute('SELECT count(*) FROM caught WHERE gameID = ?'
-                                 ' AND status = ?', (int(game), int(Status.OWNED)))
+                                 ' AND status = ?',
+                                 (int(game), int(Status.OWNED)))
         return (caught[0], owned[0])
 
     def allGames(self):

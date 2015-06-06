@@ -27,10 +27,10 @@
 
     caught stats [-J | --json] [game ...]
 
-    caught add      [-F | --file file] [-v | --verbose] game pokemon ...  # uncaught → caught
-    caught own      [-F | --file file] [-v | --verbose] game pokemon ...  # * → owned
-    caught release  [-F | --file file] [-v | --verbose] game pokemon ...  # owned → caught
-    caught uncaught [-F | --file file] [-v | --verbose] game pokemon ...  # * → uncaught
+    caught add     [-F | --file file] [-v | --verbose] game pokemon ...  # uncaught → caught
+    caught own     [-F | --file file] [-v | --verbose] game pokemon ...  # * → owned
+    caught release [-F | --file file] [-v | --verbose] game pokemon ...  # owned → caught
+    caught uncatch [-F | --file file] [-v | --verbose] game pokemon ...  # * → uncaught
 
     caught get [--games game1,game2] [-J | --json] [-F | --file file] [pokemon ...]
 

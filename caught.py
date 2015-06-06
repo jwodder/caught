@@ -7,12 +7,12 @@ import heapq
 from   itertools import izip_longest
 import json
 import os
+import os.path
 import sys
 import caughtdb
 from   caughtdb import CaughtDB, Game, Status
 
-### TODO: Make this non-Unix friendly:
-default_dbfile = os.environ.get("HOME", ".") + '/.caughtdb'
+default_dbfile = os.path.join(os.environ.get("HOME", os.curdir), '.caughtdb')
 
 statuses = {"uncaught": set([Status.UNCAUGHT]),
             "caught":   set([Status.CAUGHT]),

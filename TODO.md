@@ -74,6 +74,8 @@
   names?
 - Eliminate the `pokemon` & `pokemon_names` tables and the dependency on
   external TSVs and just hardcode the Pokédex into the source code?
+    - Get rid of the `create` command and have `caught.py` implicitly call
+      `create` whenever it is used on a new dbfile
 
 - Generalize the code into being able to track completion of sets
   (corresponding to games) of arbitrary checklists

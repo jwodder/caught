@@ -25,12 +25,12 @@
 - `caught.py`:
     - Commands to implement:
 
-        caught update tsvfile|jsonfile  # add more Pokémon
+            caught update tsvfile|jsonfile  # add more Pokémon
 
-        caught export [-o file] [game ...]
-        # Exports all games by default (as JSON?)
+            caught export [-o file] [game ...]
+            # Exports all games by default (as JSON?)
 
-        caught import [file | -]
+            caught import [file | -]
 
     - Add functionality for automatically backing up the database?
         - Idea: Add a program-wide option for backing up the database before

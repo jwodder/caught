@@ -14,11 +14,13 @@ from   caughtdb import CaughtDB, Game, Status
 
 default_dbfile = os.path.join(os.environ.get("HOME", os.curdir), '.caughtdb')
 
-statuses = {"uncaught": set([Status.UNCAUGHT]),
-            "caught":   set([Status.CAUGHT]),
-            "caught+":  set([Status.CAUGHT, Status.OWNED]),
-            "owned":    set([Status.OWNED]),
-            "unowned":  set([Status.UNCAUGHT, Status.CAUGHT])}
+statuses = {
+    "uncaught": set([Status.UNCAUGHT]),
+    "caught":   set([Status.CAUGHT]),
+    "caught+":  set([Status.CAUGHT, Status.OWNED]),
+    "owned":    set([Status.OWNED]),
+    "unowned":  set([Status.UNCAUGHT, Status.CAUGHT])
+}
 
 set_cmds = OrderedDict([('add',     (CaughtDB.markCaught,
                                      (Status.UNCAUGHT,),

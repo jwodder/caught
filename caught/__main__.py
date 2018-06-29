@@ -1,16 +1,17 @@
-#!/usr/bin/python
 # -*- coding: utf-8 -*-
 import argparse
 from   collections import OrderedDict
 import csv
 import heapq
-from   itertools import izip_longest
 import json
 import os
 import os.path
 import sys
-import caughtdb
-from   caughtdb import CaughtDB, Game, Status
+from   six         import iterkeys
+from   six.moves   import input, zip_longest
+from   .database   import (
+    CaughtDB, Game, Status, NoSuchPokemonError, NoSuchGameError, CaughtDBError,
+)
 
 default_dbfile = os.path.join(os.environ.get("HOME", os.curdir), '.caughtdb')
 
@@ -66,12 +67,12 @@ def splitHyphens(s):
 def getPokemon(db, poke, maxno=None, warn_on_fail=False):
     try:
         pokedata = db.getPokemon(poke)
-    except caughtdb.NoSuchPokemonError as e:
+    except NoSuchPokemonError as e:
         for (a, b) in splitHyphens(poke):
             try:
                 pokeA = db.getPokemon(a)
                 pokeB = db.getPokemon(b)
-            except caughtdb.NoSuchPokemonError:
+            except NoSuchPokemonError:
                 continue
             else:
                 return db.getPokemonRange(pokeA, pokeB, maxno)
@@ -89,7 +90,7 @@ def getGame(db, game, warn_on_fail=False, force_gname=False):
             gamedata = db.getGameByID(int(game))
         else:
             gamedata = db.getGame(game)
-    except caughtdb.NoSuchGameError as e:
+    except NoSuchGameError as e:
         if warn_on_fail:
             warn(str(e))
             return None
@@ -125,7 +126,7 @@ class Tabulator(object):
                 self.widths.append(max(len(h), ml))
                 sys.stdout.write((u'|%-*s' % (self.widths[-1], h)).encode('utf-8'))
             sys.stdout.write('\n')
-            print '|'.join('-' * w for w in self.widths)
+            print('|'.join('-' * w for w in self.widths))
 
     def row(self, values):
         if self.heads is None and self.widths is None:
@@ -180,7 +181,7 @@ def main():
     subparser_delete.add_argument('-f', '--force', action='store_true')
     subparser_delete.add_argument('games', nargs='+')
 
-    for name in set_cmds.iterkeys():
+    for name in iterkeys(set_cmds):
         sp = subparser.add_parser(name)
         sp.add_argument('-F', '--file', action='append', default=[],
                         type=argparse.FileType('r'))
@@ -224,7 +225,7 @@ def main():
                                          args.synonyms),
                                     ignore_dups=args.ignore_dups)
                 if not args.quiet:
-                    print gameID.asYAML()
+                    print(gameID.asYAML())
 
             elif args.cmd == 'delete':
                 for g in args.games:
@@ -233,15 +234,15 @@ def main():
                         continue
                     yesdel = args.force
                     while not yesdel:
-                        response = raw_input('Really delete ' + g + '? (y/n) ')\
-                                            .strip().lower()
+                        response = input('Really delete ' + g + '? (y/n) ')\
+                                         .strip().lower()
                         if response in ('y', 'yes'):
                             yesdel = True
                         elif response in ('n', 'no'):
                             yesdel = False
                             break
                         else:
-                            print 'Invalid response.'
+                            print('Invalid response.')
                     if yesdel:
                         db.deleteGame(game)
 
@@ -253,9 +254,10 @@ def main():
                         stat = db.getStatus(game, pokedata)
                         if stat in domain:
                             method(db, game, pokedata)
-                            print '%3d. %s: %s → %s' % (pokedata.dexno, pokedata.name, stat, target)
+                            print('%3d. %s: %s → %s'
+                                  % (pokedata.dexno, pokedata.name, stat, target))
                         else:
-                            print '%3d. %s: %s' % (pokedata.dexno, pokedata.name, stat)
+                            print('%3d. %s: %s' % (pokedata.dexno, pokedata.name, stat))
                     else:
                         method(db, game, pokedata)
 
@@ -306,7 +308,7 @@ def main():
                     pokemon = heapq.merge(pokemon, db.getByStatus(game, status,
                                                                   game.dexsize))
                 for poke in pokemon:
-                    print str(poke)
+                    print(str(poke))
 
             elif args.cmd == 'games':
                 if args.stats:
@@ -325,10 +327,10 @@ def main():
                     jsonses = []
                     for game in games:
                         jsonses.append(game.asJSON(*gameArgs(game)))
-                    print '[' + ', '.join(jsonses) + ']'
+                    print('[' + ', '.join(jsonses) + ']')
                 else:
                     for game in games:
-                        print game.asYAML(*gameArgs(game))
+                        print(game.asYAML(*gameArgs(game)))
 
             elif args.cmd == 'stats':
                 if args.games:
@@ -337,14 +339,17 @@ def main():
                                           for g in args.games])
                 else:
                     games = db.allGames()
-                table = Tabulator([max(len(g.name.decode('utf-8')) for g in games), 3, 3], use_json=args.json)
+                table = Tabulator(
+                    [max(len(g.name.decode('utf-8')) for g in games), 3, 3],
+                    use_json=args.json,
+                )
                 table.header(['caught or owned', 'owned', 'maximum'])
                 for game in games:
                     caught, owned = db.getGameCount(game)
                     table.row([game.name, caught+owned, owned, game.dexsize])
                 table.end()
 
-    except caughtdb.CaughtDBError as e:
+    except CaughtDBError as e:
         raise SystemExit(sys.argv[0] + ': ' + str(e))
 
 

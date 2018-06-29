@@ -21,6 +21,7 @@
       is raised in the middle of execution
     - Add a method and/or DB constraint for ensuring there are no `UNCAUGHT`
       entries in `caught`
+    - Convert to SQLAlchemy
 
 - `caught.py`:
     - Commands to implement:
@@ -70,7 +71,7 @@
 - Give `Status` (and `Pokemon` and `Game`?) an `__eq__` method that allows for
   comparison with integers
 - Add support for event Pokémon that are not needed for completing the Pokédex?
-- Sidestep the whole "force_gname" thing by prohibiting using numbers as game
+- Sidestep the whole "`force_gname`" thing by prohibiting using numbers as game
   names?
 - Eliminate the `pokemon` & `pokemon_names` tables and the dependency on
   external TSVs and just hardcode the Pokédex into the source code?

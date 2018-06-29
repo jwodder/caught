@@ -314,8 +314,8 @@ Status.CHECKS_LEN = 2
 
 
 class Game(namedtuple('Game', 'gameID name version player_name dexsize synonyms')):
-# `version` and `player_name` are the only attributes that should ever be
-# `None`.
+    # `version` and `player_name` are the only attributes that should ever be
+    # `None`.
     __slots__ = ()
 
     def __int__(self):

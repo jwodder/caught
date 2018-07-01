@@ -136,7 +136,7 @@ class Tabulator(object):
                     first = False
                 else:
                     click.echo('|', nl=False)
-                val = from_bytes(str(val))
+                val = from_bytes(val)
                 click.echo(u'%-*s' % (width, val or ''), nl=False)
             click.echo()
 

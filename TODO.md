@@ -21,9 +21,10 @@
       is raised in the middle of execution
     - Add a method and/or DB constraint for ensuring there are no `UNCAUGHT`
       entries in `caught`
-    - Convert to SQLAlchemy
+    - Use SQLAlchemy's ORM
+    - Replace `Status` with a proper `Enum`
 
-- `caught.py`:
+- CLI:
     - Commands to implement:
 
             caught update tsvfile|jsonfile  # add more Pokémon
